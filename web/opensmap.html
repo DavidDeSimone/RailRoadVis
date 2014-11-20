@@ -32,8 +32,15 @@ $.ajaxSetup(
 $.getJSON("example_1024_2.json", function(data) {
    data.coords.forEach(function(d) {
         console.log(d.lat + "," + d.long);
-        var marker = L.marker([d.lat, d.long]).addTo(map);
-        marker.on("click", function(d) {
+//        var marker = L.marker([d.lat, d.long]).addTo(map);
+      var marker = L.circle([d.lat, d.long], 200, {
+                   color: 'red',
+                   fillColor: '#f03',
+                   fillOpacity: 0.5
+                   }).addTo(map);
+
+
+       marker.on("click", function(d) {
           console.log(marker);
          });
     });

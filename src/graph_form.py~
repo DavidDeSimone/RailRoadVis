@@ -1,0 +1,83 @@
+import networkx as nx
+import data_parser as dp
+
+G = nx.Graph()
+G.add_node(1)
+G.add_node(2)
+G.add_edge(1,2)
+print G.nodes()
+print G.edges()
+
+def main():
+    G = nx.Graph()
+    
+    totalls = dp.getTable()
+    dbfT = dp.openDBFTable('../gcispubl.DBF')
+    csvT = dp.openCSVTable('../MasterGradeCrossingFile.csv')
+
+    print 'Opening DBF Value list...'
+
+    #Create a node for each value of each field in the DBF
+    dbf_values_list = dp.getDBFValues(dbfT)
+    
+    print 'List Opened'
+
+    for entry in dbf_values_list:
+        if entry is not None:
+            #Retreive the field name (entry[0]) and the possible value (entry[1])
+            G.add_node(str(entry[0]) + ':' + str(entry[1]) + ':cross')
+
+    print 'DBF Nodes added'
+
+    print 'Opening CSV Values'
+    
+    #Create a node for each value of each field in the CSV
+    csv_values_list = dp.getCSVValues(csvT)
+
+    print 'CSV Values read'
+
+    for entry in csv_values_list:
+        if entry is not None:
+            G.add_node(str(entry[0]) + ':' + str(entry[1]) + ':inci')
+
+    print 'CSV Nodes Added'
+
+    #Iterate over the crossings
+    #iterate over the incidents in the crossing
+    #Increase the weight of any crossing:incident value pair you see
+
+    #Remove edges of weight 0
+
+    print 'Adding Edges'
+
+    #Get the list of crossings
+    crossls = totalls[0]
+
+    #For each crossing
+    for key, value in crossls.iteritems():
+        cross_d = value.get_dict(dbfT)
+        incils = value.get_inci()
+        
+        for inci in incils:
+            for c_key, c_value in cross_d.iteritems():
+                inci_d = inci.get_dict()
+                for i_key, i_value in inci_d.iteritems():
+                    try:
+                        G.add_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'), unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci'))
+                    except UnicodeDecodeError:
+                        print c_key
+                        print c_value
+                        print i_key
+                        print i_value
+        
+    
+    print 'Graph Formed'
+
+    write_t = open('full_out.json', 'w')
+    write_t.write(nx.node_link_data(G))
+    write_t.close()
+
+
+
+if __name__=="__main__":
+    main()

@@ -1,0 +1,132 @@
+Hi David,
+1.       Very good.  Excellent that you have incorporated the Frame layer abstraction. At due time we will start using the frame but it is good that for now we have it. This give us the info for the Rail-Road crossing “vertex”.
+
+2.       Now, we do need to add the list of events associated with that Rail-Road crossing. Attached a CVS file named Master containing accident reports. I think this is the easiest format we can hope for. Need to link each rail road crossing id with the accidents reported here for that rail road crossing.
+
+I am also including a doc explaining in detail the fields just in case questions arise.
+
+à To Do : get the detailed “Rail Road Card”  associated with the Rail-Road crossing “vertex” you did choose in Step 1.
+
+Note that the Rail Road Card includes a succinct representation of its associated events list or in case is too big some link to the actual details etc
+
+In case the list is too big we could have some stats or classification of the events list or even a graph that relates the events list for a Rail- Road crossing. We can build such local graph by devising a similarity measure among events associated with a particular rail-road crossing. The succinct representation will be a “local graph” that can be shown in the card( AHA’ ). This local graph can have links to the actual details of the events.
+
+********This is good *******************  
+
+3.       Decide the most favorable representation so that we can use the current prototype to navigate the data.
+
+a.       The global map will be the US Map with skeletonized states. When zooming into a state the corresponding LAT, LONG points will be displayed(No connections between them at this point ).
+
+b.      Filtering by year will bring only the rail-road crossings having accidents on that year. Need to decide vertex sizes, colors, labels, etc.
+
+Similarly when filtering by other combinations of the attributes.  For example: Filtering by Region: North East, State, within State Region, County, etc
+
+è Love to see the map with rail-road lat-long crossings marked.
+
+ 
+Do not forget to log the hours with a description of what has been achieved so that you can get your payments.
+ 
+Best,
+ 
+-ja
+
+______________________________________________________________________________________________________________________
+
+I suggest:  complete what was in store for today. Log the hours you spend on it(I imagine 3 hours as planned? )
+The details are:
+I.                    < Rail Road Data >
+
+        Take a look at the rail road data I sent you(A compressed Zipgenious file). Get acquainted with the fields.
+a.       To start with: identify those fields that give you the lat-long of each rail road crossing. Keep the geographical TAG (i.e. NJ, NY, etc )
+
+               Each such crossing has a unique identifier.
+
+               àTo Do: Extract this into a file and plot them on the screen. You may try for a region: for example: east coast: NJ,NJ,Connecticut, etc.
+
+               Send me the picture and we can plan a meeting tomorrow to go over and discuss its adaptation to Graph Cards.
+
+b.      <The Card Abstraction > With each such crossing( a vertex)  we have a collection of events(accidents) associated with.
+
+This collection of accidents associated with a rail-road crossing(a vertex) constitutes the card for that rail road crossing.
+
+So abstractly we have “Rail-Road Cards”.
+
+Each “event” associated with a “Rail Road Crossing”  has a date and some set of codes associated with it( i.e.  Pedestrian accident, severity, damage, etc ). These set of codes constitute a set of attributes for the event. Think of it as an attribute vector for the event.
+
+This means that “The card” associated with a Rail Road Crossing ( ie. a vertex ) is a collection of “event attribute vectors “.
+
+è To Do: Extract one typical card
+
+Send me such a sample and we can discuss it when we meet.
+
+·         We will use these attribute vectors to Filter the data(To start with we can use date as in the current Graph Cards Prototype but we will do more.
+
+c.       The next step is how to link one “Rail Road Card” to another “Rail Road Card”.
+
+àTo Do: Decide how to do this. We can discuss it when we meet
+
+ 
+
+II.                  < Glasses and Necks >
+
+Report any progress you have made on this since last week.
+
+III.                < Signing Time Sheets to get payments >
+
+At noon, the professor from Civil engineering is coming to meet me. The plan was for you to meet him and get the paper work signed.
+
+I will ask him how to proceed since you had this car trouble today.
+
+ 
+I hope you can proceed as planned in these three hours with Rail Road data above.
+It will be best if you can send me an email around 2pm or so to report. Please let me know either way.
+ 
+Best,
+ 
+-ja
+
+_________________________________________________________
+
+10/30/14
+
+I. Event Graph
+	Incident Fields:	
+
+		Date (date)
+		Driver (Driver) 
+		DriverBehavior (DriverBehavior)
+		Casualities (Casualities)
+		Narrative (Narrative)
+
+	? (May need others)
+
+	Driver Fields:
+		Age (usigned int)
+		Gender (binary)
+		
+	DriverBehavior:
+		Field 40 (in example) (short)
+		F41 (short)
+		F42 (short)
+		F43 (short)
+
+	Casualities:
+		Special notes for F44 and F47
+		F44-F52	(short) except for F47 which is (double)		
+
+	Narrative:
+		F54 (String)
+
+Question: How to best summarize property damage
+Possible: mean, median, mode
+
+Question: What is Special Study Block?
+Possible: Put placeholder just in case for this field
+
+Each incident can be compared pairwise by looking at which fields in its attribute vector agree with one another
+Each relation can be described by a set of numbers (or binary vector) of which atrributes they agreed upon
+This gives us a relational graph for one given CROSSING by all of its incidents
+
+
+
+
