@@ -2,6 +2,10 @@ import networkx as nx
 import data_parser as dp
 import json
 from networkx.readwrite import json_graph
+import matplotlib
+
+IGNORE = ['NARR4', 'NARR2', 'NARR3', 'NARR1', 'combtxt', 'VIDEOT']
+
 
 def main():
     G = nx.Graph()
@@ -49,10 +53,15 @@ def main():
     crossls = totalls[0]
 
     #For each crossing
+    counter = 0
+    THRESHOLD = 5
     for key, value in crossls.iteritems():
         cross_d = value.get_dict(dbfT)
         incils = value.get_inci()
         
+        
+        if incils != []:
+            counter += 1
         for inci in incils:
             for c_key, c_value in cross_d.iteritems():
                 inci_d = inci.get_dict()
@@ -66,16 +75,24 @@ def main():
                         print i_value
                         
                         #Work around until the narratives are properly added
-                        data = json_graph.node_link_data(G)
-                        write_t = open('f_out.json', 'w')
-                        write_t.write(json.dumps(data))
-                        write_t.close()
+                        #data = json_graph.node_link_data(G)
+                        #write_t = open('f_out.json', 'w')
+                        #write_t.write(json.dumps(data))
+                        #write_t.close()
                         return
-    
+
+        if counter > THRESHOLD:
+            break
+
+
+    nx.draw(G)
     print 'Graph Formed'
+    print len(G.nodes())
+    print len(G.edges())
 
     write_t = open('full_out.json', 'w')
-    write_t.write(nx.node_link_data(G))
+    data = json_graph.node_link_data(G)
+    write_t.write(json.dumps(data))
     write_t.close()
 
 
