@@ -66,7 +66,7 @@ def main():
                         print i_value
                         
                         #Work around until the narratives are properly added
-                        data = json_graph.adjacency_data(G)
+                        data = json_graph.node_link_data(G)
                         write_t = open('f_out.json', 'w')
                         write_t.write(json.dumps(data))
                         write_t.close()
