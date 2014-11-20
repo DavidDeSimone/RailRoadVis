@@ -128,5 +128,7 @@ Each relation can be described by a set of numbers (or binary vector) of which a
 This gives us a relational graph for one given CROSSING by all of its incidents
 
 
+Nov 13th 2013:
+    Organize pairs by the following, hash each crossing incident pair, and sort the hashes. Only need to compare hashes to localized neighborhood. 
 
 
