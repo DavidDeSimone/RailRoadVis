@@ -2,7 +2,7 @@ import networkx as nx
 import data_parser as dp
 import json
 from networkx.readwrite import json_graph
-import matplotlib
+import matplotlib.pyplot as plt
 
 IGNORE = ['NARR4', 'NARR2', 'NARR3', 'NARR1', 'combtxt', 'VIDEOT']
 
@@ -54,11 +54,10 @@ def main():
 
     #For each crossing
     counter = 0
-    THRESHOLD = 5
+    THRESHOLD = 1
     for key, value in crossls.iteritems():
         cross_d = value.get_dict(dbfT)
         incils = value.get_inci()
-        
         
         if incils != []:
             counter += 1
@@ -79,13 +78,14 @@ def main():
                         #write_t = open('f_out.json', 'w')
                         #write_t.write(json.dumps(data))
                         #write_t.close()
-                        return
+                        #return
 
         if counter > THRESHOLD:
             break
 
 
     nx.draw(G)
+    plt.show()
     print 'Graph Formed'
     print len(G.nodes())
     print len(G.edges())
