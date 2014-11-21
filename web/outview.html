@@ -22,7 +22,7 @@ var width = 1400,
     height = 900;
 
 	
-var color = d3.scale.category20();
+var color = ['#a9a9a9', '#ff8200', '#ff7900', '#ff6f00', '#ff6500', '#ff5900', '#ff4d00', '#ff3e00', '#ff2a00', '#ff0000'];
 
 var force = d3.layout.force()
     .charge(-80)
@@ -41,7 +41,7 @@ zoomListener(svg);
 	
 var colored = [];	
 	
-d3.json("025436X.json", function(error, graph) {
+d3.json("501047E.json", function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links);
@@ -64,12 +64,8 @@ d3.json("025436X.json", function(error, graph) {
       .attr("y2", function(d) { return d.target.y; })
       .attr("class", "link")
       .style("stroke-width", function(d) { 
-	    if(d.weight > 1) {
-			console.log(d);
-		}
-	  
 	  return d.weight; })
-	  .style("stroke", function(d) { if(d.weight > 1) { return color( 2 * d.weight); } return "#00ff00"; })
+	  .style("stroke", function(d) { console.log(getCol(d.weight)); return getCol(d.weight); })
 	  .style("stroke-width", function(d) { return 0.0050; });
 	  
  var inciCount = 0;
@@ -161,5 +157,9 @@ function isInci(d) {
 				
              }
 	}
+	
+function getCol(weight) {
+	return color[weight - 1];
+};
 
 </script>
