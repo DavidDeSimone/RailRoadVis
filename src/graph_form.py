@@ -210,6 +210,8 @@ def printls(ls):
     for item in ls:
         print 'Crossing ' + item.get_value('crossing') + ': ' + str(len(item.get_inci()))
 
+def collectDictStats(dic):
+    return None
 
 if __name__=="__main__":
     main()
