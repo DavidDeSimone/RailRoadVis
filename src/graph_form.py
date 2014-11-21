@@ -8,6 +8,8 @@ import os
 IGNORE = ['NARR4', 'NARR2', 'NARR3', 'NARR1', 'combtxt', 'VIDEOT']
 
 
+
+
 def main():
     G = nx.Graph()
     
@@ -55,7 +57,7 @@ def main():
 
     #For each crossing
     counter = 0
-    THRESHOLD = 1
+    THRESHOLD = 150
     for key, value in crossls.iteritems():
         Gp = nx.Graph()
         Gp.graph['crossing'] = value
@@ -65,7 +67,11 @@ def main():
 
         if incils != []:
             counter += 1
-            print 'Examining Crossing ' + str(cross_d['crossing']) 
+            #print 'Examining Crossing ' + str(cross_d['crossing'])
+
+        if len(incils) > 1:
+            print 'Multi Incidident at ' + str(cross_d['crossing']) + ' with num : ' + str(len(incils))
+
         for inci in incils:
             for c_key, c_value in cross_d.iteritems():
                 
@@ -75,7 +81,7 @@ def main():
                 #If the graph already has edge
                 for i_key, i_value in inci_d.iteritems():
                     if Gp.has_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'),unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')):
-                        print 'Adding Weight'
+                        #print 'Adding Weight'
                         Gp[unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross')][unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')]['weight'] += 1 #Increase weight by 1
                     else:
                         #Else add edge to graph
@@ -133,8 +139,8 @@ def printMeta(G, filename, path='.'):
 
     node_num = len(G.nodes())
     edge_num = len(G.edges())
-    print 'Node num ' + str(node_num)
-    print 'Edge num ' + str(edge_num)
+    #print 'Node num ' + str(node_num)
+    #print 'Edge num ' + str(edge_num)
     crossing = G.graph['crossing']
 
     write_t.write('Number of Vertices ' + str(node_num) + '\n')
@@ -168,8 +174,15 @@ def printMeta(G, filename, path='.'):
     
     write_t.write('Number of Crossing Vertices ' + str(crossingCnt) + '\n')
     write_t.write('Number of Incident Vertices ' + str(node_num - crossingCnt) + '\n')
-    print 'Number of Crossing Vertices ' + str(crossingCnt)
-    print 'Number of Inci vertices ' + str(node_num - crossingCnt)
+    #print 'Number of Crossing Vertices ' + str(crossingCnt)
+    #print 'Number of Inci vertices ' + str(node_num - crossingCnt)
+    
+    write_t.close()
+
+    #appendMaster(filename, path)
+
+#def appendMaster(filename, path='.'):
+
 
 
 if __name__=="__main__":
