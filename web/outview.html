@@ -21,6 +21,7 @@
 var width = 1400,
     height = 900;
 
+	
 var color = d3.scale.category20();
 
 var force = d3.layout.force()
@@ -33,55 +34,66 @@ var svg = d3.select("body").append("svg")
     .attr("height", height);
 
 var zoomListener = d3.behavior.zoom()
-  .scaleExtent([0.1, 12])
+  .scaleExtent([0.1, 14])
   .on("zoom", zoomed);
 	
 zoomListener(svg);
 	
-d3.json("full_out.json", function(error, graph) {
+var colored = [];	
+	
+d3.json("025436X.json", function(error, graph) {
   force
       .nodes(graph.nodes)
-      .links(graph.links)
-      .start();
+      .links(graph.links);
+      //.start();
 	  
+		var n = 100;
+		force.start();
+		for (var i = n * n; i > 0; --i) force.tick();
+		force.stop();
+	  
+	 
 	  console.log("Number of verices " + graph.nodes.length);
 	  console.log("Number of Edges " + graph.links.length);
   var link = svg.selectAll(".link")
       .data(graph.links)
     .enter().append("line")
+	 .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; })
       .attr("class", "link")
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
+      .style("stroke-width", function(d) { 
+	    if(d.weight > 1) {
+			console.log(d);
+		}
+	  
+	  return d.weight; })
+	  .style("stroke", function(d) { if(d.weight > 1) { return color( 2 * d.weight); } return "#00ff00"; })
+	  .style("stroke-width", function(d) { return 0.0050; });
 	  
  var inciCount = 0;
  var oCount = 0;
-  var node = svg.selectAll(".node")
+ var node = svg.selectAll(".node")
       .data(graph.nodes)
     .enter().append("path")
       .attr("class", "node")
+	  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       .attr("d", d3.svg.symbol()
 			.type(function(d) { 
 			if(isInci(d)) {
 				return d3.svg.symbolTypes[0];
 			} else {
 				return d3.svg.symbolTypes[1];
-			} }))
-      .style("fill", function(d) { 
-            var res = d.id.split(":");
-            if(res[2] == "inci") {
-			inciCount++;
-                return "#FF0000";
-				
-           } else {
-		   oCount++;
-                return "#00FF00";
-				
-             }
-
-
- })
+			} })
+			.size(function(d) { return 1; }))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
       .call(force.drag);
 
+	
+	  
 	  console.log("Number of Incident Attrs " +  inciCount);
 	  console.log(oCount);
   node.append("title")
@@ -100,15 +112,44 @@ d3.json("full_out.json", function(error, graph) {
 });
 
 
-
-
-$(".node").on("click", function(d) {
-	console.log(d);
-});
+svg.selectAll(".node").on("click", function(d) {
+		console.log(d);
+		
+		svg.selectAll(".node").style("fill", function(l) {
+			for(i = 0; i < colored.length; i++) {
+				if(l.id === colored[i]) {
+					return "#ff0000";
+				}
+			}
+			
+			if(d.id === l.id) {
+				console.log('Compared ' + d.id + ',' + l.id);
+				colored.push(d);
+				return "#ff0000";
+			}
+			
+			return "#000000";
+		});
+		
+		
+	});	
 
 function zoomed() {
 	console.log("Calling zoom");
 	svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	svg.selectAll(".node")
+		.attr("d", d3.svg.symbol()
+			.type(function(d) { 
+			if(isInci(d)) {
+				return d3.svg.symbolTypes[0];
+			} else {
+				return d3.svg.symbolTypes[1];
+			} })
+			.size(function(d) { return 1;}))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
+	
 }	
 
 function isInci(d) { 
