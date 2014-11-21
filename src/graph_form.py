@@ -7,9 +7,6 @@ import os
 
 IGNORE = ['NARR4', 'NARR2', 'NARR3', 'NARR1', 'combtxt', 'VIDEOT']
 
-
-
-
 def main():
     G = nx.Graph()
     
@@ -49,7 +46,6 @@ def main():
     #Increase the weight of any crossing:incident value pair you see
 
     #Remove edges of weight 0
-
     print 'Adding Edges'
 
     #Get the list of crossings
@@ -57,8 +53,23 @@ def main():
 
     #For each crossing
     counter = 0
-    THRESHOLD = 150
-    for key, value in crossls.iteritems():
+
+    #Number of non-incident holding crossings we examine
+    THRESHOLD = 3000
+
+    #Minimum number of incidents needed for print to console
+    INCI_T = 2
+
+    #Variable to determine if sorted output list should be called
+    SORT = True
+
+
+    ls = sortDict(crossls)
+    printls(ls)
+        
+
+    #for key, value in crossls.iteritems():
+    for value in reversed(ls):
         Gp = nx.Graph()
         Gp.graph['crossing'] = value
  
@@ -69,7 +80,7 @@ def main():
             counter += 1
             #print 'Examining Crossing ' + str(cross_d['crossing'])
 
-        if len(incils) > 1:
+        if len(incils) > INCI_T:
             print 'Multi Incidident at ' + str(cross_d['crossing']) + ' with num : ' + str(len(incils))
 
         for inci in incils:
@@ -80,21 +91,22 @@ def main():
 
                 #If the graph already has edge
                 for i_key, i_value in inci_d.iteritems():
-                    if Gp.has_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'),unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')):
+                    try:
+                       if Gp.has_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'),unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')):
                         #print 'Adding Weight'
-                        Gp[unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross')][unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')]['weight'] += 1 #Increase weight by 1
-                    else:
+                           Gp[unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross')][unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')]['weight'] += 1 #Increase weight by 1
+                       else:
                         #Else add edge to graph
-                        try:
-                            Gp.add_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'), unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci'), {'weight':1})
+                           Gp.add_edge(unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross'), unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci'), {'weight':1})
                             #Gp[unicode(c_key) + unicode(':') + unicode(c_value) + unicode(':cross')]['isCrossing'] = True
                             #Gp[unicode(i_key) + unicode(':') + unicode(i_value) + unicode(':inci')]['isCrossing'] = False
-                        except UnicodeDecodeError:
-                            print c_key
-                            print c_value
-                            print i_key
-                            print i_value
-                        
+                    except UnicodeDecodeError:
+                            #print c_key
+                            #print c_value
+                            #print i_key
+                            #print i_value
+                        x = 1
+
                         #Work around until the narratives are properly added
                         #data = json_graph.node_link_data(G)
                         #write_t = open('f_out.json', 'w')
@@ -183,6 +195,20 @@ def printMeta(G, filename, path='.'):
 
 #def appendMaster(filename, path='.'):
 
+def sortDict(dic, sort_values=False, key='.', reverse_t=False):
+    ls = dic.values()
+
+    sorted_ls = sorted(ls, key=lambda item: len(item.get_inci()), reverse=reverse_t)
+
+    return sorted_ls
+
+def printls(ls):
+    if len(ls) == 0:
+        print 'List is empty!'
+        return
+
+    for item in ls:
+        print 'Crossing ' + item.get_value('crossing') + ': ' + str(len(item.get_inci()))
 
 
 if __name__=="__main__":

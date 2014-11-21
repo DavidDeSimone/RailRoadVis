@@ -14,45 +14,118 @@
 
 </style>
 <body>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
 var width = 1400,
     height = 900;
-
-var color = d3.scale.category20();
+var maxColor = 0;
+	
+var color;
 
 var force = d3.layout.force()
-    .charge(-40)
-    .linkDistance(30)
+    .charge(-80)
+    .linkDistance(20)
     .size([width, height]);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-d3.json("ex_out.json", function(error, graph) {
+var zoomListener = d3.behavior.zoom()
+  .scaleExtent([0.1, 14])
+  .on("zoom", zoomed);
+	
+zoomListener(svg);
+	
+var colored = [];	
+
+function getMaxID(links) {
+	maxval = 0;
+	
+	links.forEach(function(d) {
+		if(d.weight > maxval) 
+			maxval = d.weight;
+		});
+	return maxval;
+}
+
+function setColorRange(maxval) {
+	catagories = [];
+
+	for(i = maxval; i > 0; i--) {
+		catagories.push(i.toString());
+	}
+
+	console.log(catagories)
+
+	color = d3.scale.ordinal()
+		.domain(catagories)
+		.range(d3.range(catagories.length).map(d3.scale.linear()
+			.domain([0, catagories.length - 1])
+			.range(["grey", "yellow", "orange", "red"])
+			.interpolate(d3.interpolateLab)));
+}
+
+
+d3.json("025617C.json", function(error, graph) {
   force
       .nodes(graph.nodes)
-      .links(graph.links)
-      .start();
+      .links(graph.links);
+      //.start();
+	  
+		var n = 100;
+		force.start();
+		for (var i = n * n; i > 0; --i) force.tick();
+		force.stop();
+	  
+	 
+	  console.log("Number of verices " + graph.nodes.length);
+	  console.log("Number of Edges " + graph.links.length);
+
+  var maxval = getMaxID(graph.links);
+  setColorRange(maxval);
 
   var link = svg.selectAll(".link")
       .data(graph.links)
     .enter().append("line")
+	 .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; })
       .attr("class", "link")
-      .style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-  var node = svg.selectAll(".node")
+      .style("stroke-width", function(d) { 
+	  return d.weight; })
+	  .style("stroke", function(d) { if(d.weight === 1) { return "grey"; }return color(d.weight.toString()); })
+	  .style("stroke-width", function(d) { return 0.0050; });
+	  
+ var inciCount = 0;
+ var oCount = 0;
+ var node = svg.selectAll(".node")
       .data(graph.nodes)
-    .enter().append("circle")
+    .enter().append("path")
       .attr("class", "node")
-      .attr("r", 5)
-      .style("fill", function(d) { return color(d.value); })
+	  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .attr("d", d3.svg.symbol()
+			.type(function(d) { 
+			if(isInci(d)) {
+				return d3.svg.symbolTypes[0];
+			} else {
+				return d3.svg.symbolTypes[1];
+			} })
+			.size(function(d) { return 1; }))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
       .call(force.drag);
 
+	
+	  
+	  console.log("Number of Incident Attrs " +  inciCount);
+	  console.log(oCount);
   node.append("title")
-      .text(function(d) { return d.value; });
+      .text(function(d) { return d.value + ':' + d.attrn; });
 
   force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x; })
@@ -60,9 +133,67 @@ d3.json("ex_out.json", function(error, graph) {
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
 
-    node.attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; });
+    node.attr("transform", function(d) {
+		return "translate(" + d.x + "," + d.y + ")";
+		});
   });
 });
+
+var node = svg.selectAll(".node");
+console.log("Logging Node...");
+console.log(node);
+node.on("click", function(d) {
+		console.log(d);
+		
+		svg.selectAll(".node").style("fill", function(l) {
+			for(i = 0; i < colored.length; i++) {
+				if(l.id === colored[i]) {
+					return "#ff0000";
+				}
+			}
+			
+			if(d.id === l.id) {
+				console.log('Compared ' + d.id + ',' + l.id);
+				colored.push(d);
+				return "#ff0000";
+			}
+			
+			return "#000000";
+		});
+		
+		
+	});	
+
+function zoomed() {
+	console.log("Calling zoom");
+	svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	svg.selectAll(".node")
+		.attr("d", d3.svg.symbol()
+			.type(function(d) { 
+			if(isInci(d)) {
+				return d3.svg.symbolTypes[0];
+			} else {
+				return d3.svg.symbolTypes[1];
+			} })
+			.size(function(d) { return 1;}))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
+	
+}	
+
+function isInci(d) { 
+            var res = d.id.split(":");
+            if(res[2] == "inci") {
+                return true;		
+           } else {
+                return false;
+				
+             }
+	}
+	
+function getCol(weight) {
+	return color[weight - 1];
+};
 
 </script>
