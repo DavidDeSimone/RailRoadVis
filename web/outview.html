@@ -48,6 +48,18 @@ function getMaxID(links) {
 		if(d.weight > maxval) 
 			maxval = d.weight;
 		});
+		
+		
+	var numMax = 0;
+	links.forEach(function(d) {
+		if(d.weight === maxval) {
+			numMax++;
+			console.log("Logging Max Val");
+			//console.log(d);
+		}
+	});
+	//console.log(numMax);	
+		
 	return maxval;
 }
 
@@ -57,19 +69,19 @@ function setColorRange(maxval) {
 	for(i = maxval; i > 0; i--) {
 		catagories.push(i.toString());
 	}
-
-	console.log(catagories)
+	console.log(maxval);
+	console.log(catagories);
 
 	color = d3.scale.ordinal()
 		.domain(catagories)
 		.range(d3.range(catagories.length).map(d3.scale.linear()
 			.domain([0, catagories.length - 1])
-			.range(["grey", "purple", "yellow", "orange", "red"])
-			.interpolate(d3.interpolateLab)));
+			.range(["#ff0000", "grey"])
+			.interpolate(d3.interpolateHcl)));
 }
 
 
-d3.json("025617C.json", function(error, graph) {
+d3.json("811479J(5).json", function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links);
@@ -88,17 +100,18 @@ d3.json("025617C.json", function(error, graph) {
   setColorRange(maxval);
 
   var link = svg.selectAll(".link")
-      .data(graph.links)
+      .data(graph.links.filter(function(d) {
+		if(d.weight > 0) return true;
+		return false;
+	  }))
     .enter().append("line")
 	 .attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; })
       .attr("class", "link")
-      .style("stroke-width", function(d) { 
-	  return d.weight; })
-	  .style("stroke", function(d) { if(d.weight === 1) { return "grey"; }return color(d.weight.toString()); })
-	  .style("stroke-width", function(d) { return 0.0050; });
+	  .style("stroke", function(d) { return color(d.weight.toString()); })
+	  .style("stroke-width", function(d) { return 0.0025 * ( 4 * d.weight); });
 	  
  var inciCount = 0;
  var oCount = 0;
@@ -120,7 +133,6 @@ d3.json("025617C.json", function(error, graph) {
 	  .style("stroke-width", function(d) { return "0.25px" })
       .call(force.drag);
 
-	
 	  
 	  console.log("Number of Incident Attrs " +  inciCount);
 	  console.log(oCount);
@@ -140,8 +152,7 @@ d3.json("025617C.json", function(error, graph) {
 });
 
 var node = svg.selectAll(".node");
-console.log("Logging Node...");
-console.log(node);
+
 node.on("click", function(d) {
 		console.log(d);
 		
@@ -184,11 +195,10 @@ function zoomed() {
 
 function isInci(d) { 
             var res = d.id.split(":");
-            if(res[2] == "inci") {
+            if(res[res.length - 1] == "inci") {
                 return true;		
            } else {
                 return false;
-				
              }
 	}
 	
