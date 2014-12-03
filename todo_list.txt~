@@ -132,3 +132,13 @@ Nov 13th 2013:
     Organize pairs by the following, hash each crossing incident pair, and sort the hashes. Only need to compare hashes to localized neighborhood. 
 
 
+11/20/14
+-Add zoom in to 1-crossing graph
+-Change glyph to be encoding crossing vs incident (x for crossing, dot for incident)
+
+12/3/14
+Working on automation. 2 tasks at the moment.
+
+Automation of screen shots.
+Add a slider to show different weight edges.
+

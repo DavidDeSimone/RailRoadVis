@@ -14,10 +14,19 @@
 
 </style>
 <body>
-<script src="http://code.jquery.com/jquery-latest.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script>
 
+
+ <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.9.2/jquery-ui.js"></script> 
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/rgbcolor.js"></script> 
+<script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/canvg.js"></script> 
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
+
+
+<script>
 var width = 1400,
     height = 900;
 var maxColor = 0;
@@ -29,7 +38,11 @@ var force = d3.layout.force()
     .linkDistance(20)
     .size([width, height]);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("body")
+    .append("div")
+    .attr("id", "svg-container")
+    .append("svg")
+    .attr("id", "svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -85,13 +98,12 @@ d3.json("811479J(5).json", function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links);
-      //.start();
+      
 	  
 		var n = 100;
 		force.start();
 		for (var i = n * n; i > 0; --i) force.tick();
 		force.stop();
-	  
 	 
 	  console.log("Number of verices " + graph.nodes.length);
 	  console.log("Number of Edges " + graph.links.length);
@@ -149,6 +161,9 @@ d3.json("811479J(5).json", function(error, graph) {
 		return "translate(" + d.x + "," + d.y + ")";
 		});
   });
+
+  setSlider(graph);
+  //takeScreenShot();
 });
 
 var node = svg.selectAll(".node");
@@ -192,6 +207,77 @@ function zoomed() {
 	  .style("stroke-width", function(d) { return "0.25px" })
 	
 }	
+
+//Sets the slider used to control the types of edges seen
+function setSlider(graph) {
+
+
+d3.select("body").append("div")
+   .attr("id", "amount");
+
+d3.select("body").append("div")
+   .attr("id", "slider");
+
+//Get the largest edge for our range
+var maxval = getMaxID(graph.links);
+
+$("#amount").html('Range from 0 to ' + maxval);
+
+$("#slider").slider({
+   range: true, 
+   min: 0,
+   max: maxval,
+   values: [ 0, maxval ],
+   slide: function(event, ui) {
+	$("#amount").html('Range from ' + ui.values[0] + ' to ' + ui.values[1]);   	
+	graph.links.filter(function(d) {
+            if(d.weight >= ui.values[0] && d.weight <= ui.values[1]) {
+		return true;
+		}
+	    return false;
+         });
+
+
+
+
+   }
+});
+
+}
+
+
+function takeScreenShot() {
+
+console.log("Logging SVG");
+console.log(svg.html());
+
+//Open a websocket
+if("WebSocket" in window) {
+   console.log("Web Sockets are supported!");
+   var ws = new WebSocket("ws://localhost:9998");
+
+   ws.onoopen = function() {
+    ws.send(svg.html());
+    console.log("Sending SVG/HTML");
+    }
+   ws.onmessage = function(evt) {
+    console.log(evt.data);
+    }
+   ws.onclose = function() {
+    console.log("Socket closed");
+    }
+
+} else {
+   console.log("Web Sockets not supported!");
+}
+
+}
+
+
+
+
+
+
 
 function isInci(d) { 
             var res = d.id.split(":");
