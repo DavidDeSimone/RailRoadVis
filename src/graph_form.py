@@ -63,11 +63,9 @@ def main():
     #Variable to determine if sorted output list should be called
     SORT = True
 
-
     ls = sortDict(crossls)
     printls(ls)
         
-
     #for key, value in crossls.iteritems():
     for value in reversed(ls):
         Gp = nx.Graph()
