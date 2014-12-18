@@ -206,6 +206,8 @@ function zoomed() {
 	
 }	
 
+var currMin = 0;
+var currMax = 0;
 //Sets the slider used to control the types of edges seen
 function setSlider(graph) {
 
@@ -221,13 +223,27 @@ var maxval = getMaxID(graph.links);
 
 $("#amount").html('Range from 0 to ' + maxval);
 
+currMax = maxval * 100;
+
 $("#slider").slider({
    range: true, 
+   animate: false,
    min: 0,
    max: maxval,
-   values: [ 0, maxval ],
+   values: [ 0, maxval],
    slide: function(event, ui) {
-	$("#amount").html('Range from ' + ui.values[0] + ' to ' + ui.values[1]);   	
+	$("#amount").html('Range from ' + ui.values[0] + ' to ' + ui.values[1]);  
+
+	console.log("Comparing " + currMin + ":" + ui.values[0]);
+	if(currMin === ui.values[0] && currMax === ui.values[1]) {
+		console.log("Returning and saving space");
+		return;
+	}
+
+	currMin = ui.values[0];
+	currMax = ui.values[1];
+
+	setTimeout(function() {
 	svg.selectAll(".link")
 	.style("stroke-width", function(d) {
 			console.log("Iterating Graph");
@@ -236,7 +252,7 @@ $("#slider").slider({
 				}
 			return 0;
          });
-
+	}, 0);
 
 
 
