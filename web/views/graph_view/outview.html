@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+</style>
+<body>
+
+
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.9.2/jquery-ui.js"></script> 
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/rgbcolor.js"></script> 
+  <script type="text/javascript" src="http://canvg.googlecode.com/svn/trunk/canvg.js"></script> 
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
+
+
+<script>
+var width = 1400,
+    height = 900;
+var maxColor = 0;
+	
+var color;
+
+var force = d3.layout.force()
+    .charge(-80)
+    .linkDistance(20)
+    .size([width, height]);
+
+var svg = d3.select("body")
+    .append("div")
+    .attr("id", "svg-container")
+    .append("svg")
+    .attr("id", "svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var zoomListener = d3.behavior.zoom()
+  .scaleExtent([0.1, 14])
+  .on("zoom", zoomed);
+	
+zoomListener(svg);
+	
+var colored = [];	
+
+function getMaxID(links) {
+	maxval = 0;
+	
+	links.forEach(function(d) {
+		if(d.weight > maxval) 
+			maxval = d.weight;
+		});
+	return maxval;
+}
+
+/* Sets the color scale range for 
+ * Values in the range 0 to maxval
+ */
+function setColorRange(maxval) {
+	catagories = [];
+
+	for(i = maxval; i > 0; i--) {
+		catagories.push(i.toString());
+	}
+
+	console.log(catagories)
+
+	color = d3.scale.ordinal()
+		.domain(catagories)
+		.range(d3.range(catagories.length).map(d3.scale.linear()
+			.domain([0, catagories.length - 1])
+			.range(["grey", "purple", "yellow", "orange", "red"])
+			.interpolate(d3.interpolateLab)));
+}
+
+
+d3.json("025617C.json", function(error, graph) {
+  force
+      .nodes(graph.nodes)
+      .links(graph.links);
+      
+      //Simulate the graph for a set number of steps
+      //This is to prevent lag during the force directed animation
+      //And generate the final graph more quickly	  
+      var n = 100;
+      force.start();
+      for (var i = n * n; i > 0; --i) force.tick();
+      force.stop();
+	 
+      console.log("Number of verices " + graph.nodes.length);
+      console.log("Number of Edges " + graph.links.length);
+
+  var maxval = getMaxID(graph.links);
+  setColorRange(maxval);
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("line")
+	 .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; })
+      .attr("class", "link")
+      .style("stroke-width", function(d) { 
+	  return d.weight; })
+	  .style("stroke", function(d) { if(d.weight === 1) { return "grey"; } return color(d.weight.toString()); })
+	  .style("stroke-width", function(d) { return 0.0050; });
+	  
+ var inciCount = 0;
+ var oCount = 0;
+ var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("path")
+      .attr("class", "node")
+	  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .attr("d", d3.svg.symbol()
+			.type(function(d) { 
+			if(isInci(d)) {
+				return d3.svg.symbolTypes[0];
+			} else {
+				return d3.svg.symbolTypes[1];
+			} })
+			.size(function(d) { return 1; }))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
+      .call(force.drag);
+
+	
+	  
+	  console.log("Number of Incident Attrs " +  inciCount);
+	  console.log(oCount);
+  node.append("title")
+      .text(function(d) { return d.value + ':' + d.attrn; });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) {
+		return "translate(" + d.x + "," + d.y + ")";
+		});
+  });
+
+  setSlider(graph);
+  //takeScreenShot();
+});
+
+var node = svg.selectAll(".node");
+console.log("Logging Node...");
+console.log(node);
+node.on("click", function(d) {
+		console.log(d);
+		
+		svg.selectAll(".node").style("fill", function(l) {
+			for(i = 0; i < colored.length; i++) {
+				if(l.id === colored[i]) {
+					return "#ff0000";
+				}
+			}
+			
+			if(d.id === l.id) {
+				console.log('Compared ' + d.id + ',' + l.id);
+				colored.push(d);
+				return "#ff0000";
+			}
+			
+			return "#000000";
+		});
+		
+		
+	});	
+
+function zoomed() {
+	console.log("Calling zoom");
+	svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	svg.selectAll(".node")
+		.attr("d", d3.svg.symbol()
+			.type(function(d) { 
+			if(isInci(d)) {
+				return d3.svg.symbolTypes[0];
+			} else {
+				return d3.svg.symbolTypes[1];
+			} })
+			.size(function(d) { return 1;}))
+      .style("fill", function(d) { return "#000000"; })
+	  .style("stroke", function(d) {return "#ffffff"; })
+	  .style("stroke-width", function(d) { return "0.25px" })
+	
+}	
+
+/* Sets the slider used to control the types of edges seen
+ */
+function setSlider(graph) {
+
+d3.select("body").append("div")
+   .attr("id", "amount");
+
+d3.select("body").append("div")
+   .attr("id", "slider");
+
+//Get the largest edge for our range
+var maxval = getMaxID(graph.links);
+
+$("#amount").html('Range from 0 to ' + maxval);
+
+$("#slider").slider({
+   range: true, 
+   min: 0,
+   max: maxval,
+   values: [ 0, maxval],
+   slide: function(event, ui) {
+	$("#amount").html('Range from ' + ui.values[0] + ' to ' + ui.values[1]);   	
+
+	console.log(event);
+
+	graph.links.filter(function(d) {
+            if(d.weight >= ui.values[0] && d.weight <= ui.values[1]) {
+		return true;
+		}
+	    return false; 
+	    
+         });
+
+       }
+
+   });
+
+}
+
+
+function takeScreenShot() {
+
+console.log("Logging SVG");
+console.log(svg.html());
+
+//Open a websocket
+if("WebSocket" in window) {
+   console.log("Web Sockets are supported!");
+   var ws = new WebSocket("ws://localhost:9998");
+
+   ws.onoopen = function() {
+    ws.send(svg.html());
+    console.log("Sending SVG/HTML");
+    }
+   ws.onmessage = function(evt) {
+    console.log(evt.data);
+    }
+   ws.onclose = function() {
+    console.log("Socket closed");
+    }
+
+} else {
+   console.log("Web Sockets not supported!");
+}
+
+}
+
+
+
+
+
+
+
+function isInci(d) { 
+            var res = d.id.split(":");
+            if(res[2] == "inci") {
+                return true;		
+           } else {
+                return false;
+				
+             }
+	}
+	
+function getCol(weight) {
+	return color[weight - 1];
+};
+
+</script>

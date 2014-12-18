@@ -145,3 +145,20 @@ Add a slider to show different weight edges.
 --> Add ability to flag if data is pair-sorted. If this is the case, we do not need hashing to determing join. 
 
 
+12/11/14
+Work on slider responsiveness
+Work on screen shot printing with selection ("screenshots by state, by year, etc.")
+
+--> Work on cards:
+    	 Cards will have information encpsulated in their frames:
+	       "Ribbon" objects that do the following:
+	       		On click, show "highlights" of the global space (neighbors of cards/ highest or lowest k edges of that card in the global space)
+			On mouse over, shows additional information (without chaning global space)
+	        "Lights" that show if the cards attributes are above average. Example, if I have attribute x, and the global average for this attribute is 3, and the value of x is 8, x might have a "red" light, to show that x is far above average
+		 
+
+
+
+
+
+

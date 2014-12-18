@@ -1,20 +1,33 @@
 import dbf
 import csv
+import os
+from xlrd import open_workbook
 from data_structs import Crossing, Incident
 
 import resource
 
 def getTable():
     dbf = openDBFTable('../gcispubl.DBF')
-    csv = openCSVTable('../MasterGradeCrossingFile.csv')
-
-    mergedTable = mergeTables(dbf, csv)
+    xls_ls = openXLSFiles('../IncidentData')
+    #csv = openCSVTable('../MasterGradeCrossingFile.csv')
+    mergedTable = mergeXLSTables(dbf, xls_ls)
     
     return mergedTable
 
 def openDBFTable(dbfName):
     table = dbf.Table(dbfName)
     return table
+
+
+def openXLSFiles(xlsDIR):
+    ret_ls = list()
+
+    for filename in os.listdir(xlsDIR):
+        if filename != '.' or filename != '..':
+            ret_ls.append(xlsDIR + '/' + filename)
+
+    print ret_ls
+    return ret_ls
 
 def openCSVTable(csvName):
     f = open(csvName, 'rU')
@@ -48,15 +61,27 @@ def getCSVValues(csvF):
     for row in csvF:
         j = 0
         for field in row:
-            if i % 2 == 1 and i > 0:
+            if i > 0:
                 if j < len(key_list):
                     ret_l.append([key_list[j], field])
             j += 1
         i += 1
     
-    print ret_l
     return ret_l
 
+def getXLSValues(xls):
+    ret_l = list()
+
+    book = open_workbook(xls, on_demand=True)
+    sheet = book.sheet_by_index(0)
+
+    for x in xrange(0, sheet.nrows):
+        j = 0
+        for col in sheet.row(x):
+            ret_l.append([sheet.cell_value(rowx=0, colx = j), sheet.cell_value(rowx=x, colx=j)])
+            j += 1
+
+    return ret_l
 
 def getKeyList(csvF):
     ret_l = list()
@@ -68,7 +93,7 @@ def getKeyList(csvF):
     return ret_l
 
 
-def mergeTables(dbfT, csv):
+def mergeTables(dbfT, xls_ls):
 
     crossingls = dict()
     incils = list()
@@ -79,37 +104,75 @@ def mergeTables(dbfT, csv):
         cross.set_values(record)
         crossingls[record.crossing] = cross
 
-    #Fill out the list of keys for the csv file
-    keyls = getKeyList(csv)
+    for csv in csv_ls:
+        #Fill out the list of keys for the csv file
+        keyls = getKeyList(csv)
 
-    #For each row, create an incident object
-    rowCount = 0
-    for row in csv:
-        if rowCount % 2 == 1 and rowCount > 0:
+        #For each row, create an incident object
+        rowCount = 0
+        for row in csv:
+            if rowCount > 0:
 
-            inci = Incident()
+                inci = Incident()
 
-            for y in xrange(0, len(keyls)):
-                if y < len(row):
-                    #print 'Adding key value ' + str(keyls[y]) + str(row[y])
-                    inci.add_keyvalue(keyls[y], row[y])
+                for y in xrange(0, len(keyls)):
+                    if y < len(row):
+                        #print 'Adding key value ' + str(keyls[y]) + str(row[y])
+                        inci.add_keyvalue(keyls[y], row[y])
 
-            incils.append(inci)
+                    incils.append(inci)
 
 
-        rowCount += 1
+            rowCount += 1
 
-    #find the corresponding crossing in the crossing list
-    #add incident to crossings' inci list
-    for incident in incils:
-        if incident.get_value('GXID') in crossingls:
-            crs = crossingls[incident.get_value('GXID')]
-            crsls = crs.get_inci()
+        #find the corresponding crossing in the crossing list
+        #add incident to crossings' inci list
+        for incident in incils:
+            if incident.get_value('GXID') in crossingls:
+                crs = crossingls[incident.get_value('GXID')]
+                crsls = crs.get_inci()
 
-            if crsls is not None:
-                crsls.append(incident)
+                if crsls is not None:
+                    crsls.append(incident)
                 
     return [crossingls, incils]
+
+
+def mergeXLSTables(dbfT, xls_ls):
+    crossing_dict = dict()
+    inci_ls = list()
+
+    for record in dbfT:
+        cross = Crossing()
+        cross.set_values(record)
+        crossing_dict[record.crossing] = cross
+
+
+    for xls in xls_ls:
+        book = open_workbook(xls, on_demand=True)
+        sheet = book.sheet_by_index(0)
+
+        for x in xrange(1, sheet.nrows):
+            j = 0
+            inci = Incident()
+
+            for col in sheet.row(x):
+                inci.add_keyvalue(sheet.cell_value(rowx=0, colx=j), sheet.cell_value(rowx=x, colx=j))
+                j += 1
+
+            inci_ls.append(inci)
+
+
+        for incident in inci_ls:
+            if incident.get_value('GXID') in crossing_dict:
+                crs = crossing_dict[incident.get_value('GXID')]
+                crs_ls = crs.get_inci()
+
+                if crs_ls is not None:
+                    crs_ls.append(incident)
+
+    return [crossing_dict, inci_ls]
+
 
 def createGraph(mergedTable):
     return None
