@@ -92,12 +92,11 @@ function setColorRange(maxval) {
 }
 
 
-d3.json("025425K.json", function(error, graph) {
+d3.json("025617C.json", function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links);
       
-	  
 		var n = 100;
 		force.start();
 		for (var i = n * n; i > 0; --i) force.tick();
@@ -140,15 +139,34 @@ d3.json("025425K.json", function(error, graph) {
 			.size(function(d) { return 1; }))
       .style("fill", function(d) { return "#000000"; })
 	  .style("stroke", function(d) {return "#ffffff"; })
-	  .style("stroke-width", function(d) { return "0.25px" })
-      .call(force.drag);
+	  .style("stroke-width", function(d) { return "0.25px" })  
+	  .on("mouseover", function(d) { 
+	  /* Mouse over listener for node selection. */
+	  d3.select(this).style("fill", "red");
+	  console.log(d);  
+	  svg.selectAll(".link")
+		.style("stroke-width", function(l) {
+            if(l.source.id === d.id || l.target.id == d.id) {
+		    return 0.5;
+				}
+			return 0;
+         });
+	  
+	  
+	  
+	  
+	  });
+      
 
 	  
 	  console.log("Number of Incident Attrs " +  inciCount);
 	  console.log(oCount);
-  node.append("title")
+ /* node.append("title")
       .text(function(d) { return d.value + ':' + d.attrn; });
+	 */
+  console.log("binding click listener");
 
+	  
   force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
@@ -164,46 +182,10 @@ d3.json("025425K.json", function(error, graph) {
   //takeScreenShot();
 });
 
-var node = svg.selectAll(".node");
-
-node.on("click", function(d) {
-		console.log(d);
-		
-		svg.selectAll(".node").style("fill", function(l) {
-			for(i = 0; i < colored.length; i++) {
-				if(l.id === colored[i]) {
-					return "#ff0000";
-				}
-			}
-			
-			if(d.id === l.id) {
-				console.log('Compared ' + d.id + ',' + l.id);
-				colored.push(d);
-				return "#ff0000";
-			}
-			
-			return "#000000";
-		});
-		
-		
-	});	
 
 function zoomed() {
 	console.log("Calling zoom");
 	svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	svg.selectAll(".node")
-		.attr("d", d3.svg.symbol()
-			.type(function(d) { 
-			if(isInci(d)) {
-				return d3.svg.symbolTypes[0];
-			} else {
-				return d3.svg.symbolTypes[1];
-			} })
-			.size(function(d) { return 1;}))
-      .style("fill", function(d) { return "#000000"; })
-	  .style("stroke", function(d) {return "#ffffff"; })
-	  .style("stroke-width", function(d) { return "0.25px" })
-	
 }	
 
 var currMin = 0;
@@ -246,7 +228,6 @@ $("#slider").slider({
 	setTimeout(function() {
 	svg.selectAll(".link")
 	.style("stroke-width", function(d) {
-			console.log("Iterating Graph");
             if(d.weight >= ui.values[0] && d.weight <= ui.values[1]) {
 		    return 0.5;
 				}
