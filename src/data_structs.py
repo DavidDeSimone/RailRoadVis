@@ -18,6 +18,9 @@ class Crossing:
     def set_values(self, values):
         self.value_list = values
 
+    def get_values(self):
+        return self.value_list
+
     # Constructs a python dictionary from
     # dbf field data struct
     def get_dict(self, dbfT):

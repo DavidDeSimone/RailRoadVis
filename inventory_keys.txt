@@ -1,0 +1,10 @@
+railroad -> RailRoad owner company (4 Character code identifier)
+reason -> Reason for form update (1. Change in Data, 2. New Crossing, 3. Closed crossing)
+(Geo) rrdiv -> Railroad division or region
+(Geo) rrsubdiv -> SubDivision of railroad region
+(Geo) highway -> Highway type and No. (Max 7 char)
+(Geo) milepost -> Railway Mile post
+(Geo) mapref -> County Map reference number
+typexing -> Crossing Type (1. Public, 2. Private, 3. Pedestrian)
+posxing -> Crossing Position (1. At grade, 2. RR under, 3. RR over)
+

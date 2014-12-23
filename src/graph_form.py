@@ -12,7 +12,7 @@ def main():
     
     totalls = dp.getTable()
     dbfT = dp.openDBFTable('../gcispubl.DBF')
-    csvT = dp.openCSVTable('../MasterGradeCrossingFile.csv')
+    #csvT = dp.openCSVTable('../MasterGradeCrossingFile.csv')
 
     print 'Opening DBF Value list...'
 
@@ -80,6 +80,9 @@ def main():
 
         if len(incils) > INCI_T:
             print 'Multi Incidident at ' + str(cross_d['crossing']) + ' with num : ' + str(len(incils))
+            print 'Basic Info ' + str(cross_d['state']) + ' : ' + str(cross_d['citynam'])
+
+
 
         for inci in incils:
             for c_key, c_value in cross_d.iteritems():

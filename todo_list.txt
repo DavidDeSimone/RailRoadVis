@@ -156,6 +156,14 @@ Work on screen shot printing with selection ("screenshots by state, by year, etc
 			On mouse over, shows additional information (without chaning global space)
 	        "Lights" that show if the cards attributes are above average. Example, if I have attribute x, and the global average for this attribute is 3, and the value of x is 8, x might have a "red" light, to show that x is far above average
 		 
+12/18/14
+--> Need to implement an "on click" feature for examining vertex and it's neighbors. Neighbors should be highlighted 
+Look into rect. selection for D3
+Put pips on the slider where values occur
+On click, have examination of the feature
+Check if graph is a complete bipartite subgraph for each edge selection
+changes in graph density as the slider moves around in value
+consistent render ordering for graph (highest values rendered on top layer, second highest on second layer, etc.)
 
 
 
