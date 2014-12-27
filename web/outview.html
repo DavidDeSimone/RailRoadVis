@@ -16,9 +16,9 @@
 <body>
 
 
- <link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
-  <script src="https://code.jquery.com/ui/1.9.2/jquery-ui.js"></script> 
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="https://code.jquery.com/ui/1.9.2/jquery-ui.js"></script> 
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 
@@ -98,8 +98,10 @@ function setColorRange(maxval) {
 			.interpolate(d3.interpolateHcl)));
 }
 
+loadGraph("027656A.json");
 
-d3.json("027656A.json", function(error, graph) {
+function loadGraph(jsonName) {
+d3.json(jsonName, function(error, graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links);
@@ -204,6 +206,7 @@ d3.json("027656A.json", function(error, graph) {
   //takeScreenShot();
 });
 
+}
 
 function zoomed() {
 	console.log("Calling zoom");

@@ -1,3 +1,4 @@
+
 import dbf
 import csv
 import os
@@ -7,9 +8,12 @@ from data_structs import Crossing, Incident
 import resource
 
 def getTable():
+    print 'Reading DBF...'
     dbf = openDBFTable('../gcispubl.DBF')
+    print 'Reading XLS...'
     xls_ls = openXLSFiles('../IncidentData')
     #csv = openCSVTable('../MasterGradeCrossingFile.csv')
+    print 'Merging Tables...'
     mergedTable = mergeXLSTables(dbf, xls_ls)
     
     return mergedTable
@@ -142,11 +146,13 @@ def mergeXLSTables(dbfT, xls_ls):
     crossing_dict = dict()
     inci_ls = list()
 
-    for record in dbfT:
+    dbfT.open()
+    
+    for x in xrange(0, len(dbfT)):
+        y = dbfT[x]
         cross = Crossing()
-        cross.set_values(record)
-        crossing_dict[record.crossing] = cross
-
+        cross.set_values(y)
+        crossing_dict[y.crossing] = cross
 
     for xls in xls_ls:
         book = open_workbook(xls, on_demand=True)
@@ -162,7 +168,6 @@ def mergeXLSTables(dbfT, xls_ls):
 
             inci_ls.append(inci)
 
-
         for incident in inci_ls:
             if incident.get_value('GXID') in crossing_dict:
                 crs = crossing_dict[incident.get_value('GXID')]
@@ -172,13 +177,5 @@ def mergeXLSTables(dbfT, xls_ls):
                     crs_ls.append(incident)
 
     return [crossing_dict, inci_ls]
-
-
-def createGraph(mergedTable):
-    return None
-
-def printJSON(graph):
-    return None
-
 
 getTable()
