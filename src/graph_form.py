@@ -45,9 +45,6 @@ def main():
     #iterate over the incidents in the crossing
     #Increase the weight of any crossing:incident value pair you see
 
-    #Remove edges of weight 0
-    print 'Adding Edges'
-
     #Get the list of crossings
     crossls = totalls[0]
 

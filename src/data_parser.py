@@ -1,4 +1,3 @@
-
 import dbf
 import csv
 import os
@@ -32,6 +31,7 @@ def openXLSFiles(xlsDIR):
 
     print ret_ls
     return ret_ls
+
 
 def openCSVTable(csvName):
     f = open(csvName, 'rU')
@@ -150,9 +150,8 @@ def mergeXLSTables(dbfT, xls_ls):
     
     for x in xrange(0, len(dbfT)):
         y = dbfT[x]
-        cross = Crossing()
-        cross.set_values(y)
-        crossing_dict[y.crossing] = cross
+        crossing_dict[y.crossing] = Crossing(y.crossing, dbfT)
+        print x
 
     for xls in xls_ls:
         book = open_workbook(xls, on_demand=True)
@@ -178,4 +177,33 @@ def mergeXLSTables(dbfT, xls_ls):
 
     return [crossing_dict, inci_ls]
 
-getTable()
+def getInciDict(xls_ls):
+    inci_dic = dict()
+
+    for xls in xls_ls:
+        book = open_workbook(xls, on_demand=True)
+        sheet = book.sheet_by_index(0)
+
+        for x in xrange(1, sheet.nrows):
+            j = 0
+            inci = Incident()
+
+            for col in sheet.row(x):
+                inci.add_keyvalue(sheet.cell_value(rowx=0, colx=j), sheet.cell_value(rowx=x, colx=j))
+                j += 1
+
+
+            key = inci.get_value('GXID')
+
+            if key not in inci_dic:
+                inci_dic[key] = list()
+
+            inci_dic[key].append(inci)
+
+
+
+    return inci_dic 
+
+
+
+#getTable()

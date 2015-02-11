@@ -1,4 +1,3 @@
-
 import dbf
 import csv
 import os
@@ -147,10 +146,12 @@ def mergeXLSTables(dbfT, xls_ls):
     inci_ls = list()
 
     dbfT.open()
-    for record in dbfT:
-        cross = Crossing()
-        cross.set_values(record)
-        crossing_dict[record.crossing] = cross
+    
+    for x in xrange(0, len(dbfT)):
+        y = dbfT[x]
+        crossing_dict[y.crossing] = Crossing()
+        crossing_dict[y.crossing].set_values(y)
+        print x
 
     for xls in xls_ls:
         book = open_workbook(xls, on_demand=True)
@@ -165,7 +166,6 @@ def mergeXLSTables(dbfT, xls_ls):
                 j += 1
 
             inci_ls.append(inci)
-
 
         for incident in inci_ls:
             if incident.get_value('GXID') in crossing_dict:

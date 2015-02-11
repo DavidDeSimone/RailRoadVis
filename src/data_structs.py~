@@ -1,15 +1,16 @@
 class Crossing:
-    def __init__(self, crossing_str, dbf_t):
-        #self.value_list = dict()
-        self.crossing_id = crossing_str
-        self.dbf_t = dbf_t
+    def __init__(self):
+        self.value_list = dict()
         self.incils = list()
 
     def add_keyvalue(self, key, value):
         self.value_list[key] = value
 
     def get_value(self, key):
-        return self.dbf_t[self.crossing_id][key]
+        if key in self.value_list:
+            return self.value_list[key]
+        else:
+            return None
 
     def get_inci(self):
         return self.incils

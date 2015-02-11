@@ -2,7 +2,7 @@ import networkx as nx
 import data_parser as dp
 import json
 from networkx.readwrite import json_graph
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import os
 
 IGNORE = ['NARR4', 'NARR2', 'NARR3', 'NARR1', 'combtxt', 'VIDEOT']
