@@ -372,21 +372,8 @@ gateoth ::: 0
 flashnov ::: 0
 
 
-2/11/14
-For crossing 020856K, we have isolated attribute in MST, node TIMEMIN:20. connected to minspd:5. 
-minspd:5 is the only vertex of degree 2 in the MST plot(besides the core of the other cluster)
 
-For crossing 020856K, center of star is hwysgnl:0
 
-both clicks on mouse to label just one vertex (or some other mechanism). Main point: have a way to label one vertex at a time
-
->>Possible Finding to validate
-High Color stars are describe the set of accident attributes that occur more frequenctly
-
->>Degree 1 verticies in the MST incicate some weighted uniqueness of the attribute
-
->>QUESTION: is the diameter of the MSF always 3-4?
-way to check, look at 
 
 
 

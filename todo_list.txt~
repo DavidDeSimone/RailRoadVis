@@ -178,12 +178,12 @@ coloring edges in pinning mode (~1/2 hour)
 
 1/30/2015
 --> "maximize" the global view for better exploration
---> increase max zoomout to see more in non maximized mode
+(done) --> increase max zoomout to see more in non maximized mode
 --> add minimap for global static view that does not change
 allow user to step back force directed layout
-fix issues with json graph loading
-fix issue with number of edges displayed during MST
-fix pinning issue on lab machine (try to find cause, maybe browser/OS verions?)
+(done) fix issues with json graph loading
+(done) fix issue with number of edges displayed during MST
+(todo) fix pinning issue on lab machine (try to find cause, maybe browser/OS verions?)
 add "peeling" to algorithms to make tree display nicer
 
 possible:
@@ -191,3 +191,26 @@ edit render queue to make side view canvas based
 change plots to be streaming based on data view
 
 GOAL: Something useful for railway data
+
+2/4/14
+plot is currently displaying average degree, have a plot for graph density (number of edges over number of possible edges)
+allow link strength to also be parameterized in the view
+
+
+BUGS:
+when slider is in use, on mouseover, showing global neighborhood instead of visible neighborhood.
+when using slider, non-visible nodes can get set to vsible, case is when they have no edges of weight within slider range, user mouses over node, they get set to visible and rendered
+
+
+2/11/14
+Have button to filter two different types of verticies in bipartitie graph
+for this data, treat maximum number of edges as if graph is bipartiti
+make sure that average degree is E / V and not the other way around
+fix slider (was working last night, look at diff from then and now)
+
+link view to the documentation of explanation of vertex labeling
+when switching to new file, make sure to clear old canvas to prevent old edge artifcats
+
+
+write script to do the following:
+

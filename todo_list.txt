@@ -200,3 +200,24 @@ allow link strength to also be parameterized in the view
 BUGS:
 when slider is in use, on mouseover, showing global neighborhood instead of visible neighborhood.
 when using slider, non-visible nodes can get set to vsible, case is when they have no edges of weight within slider range, user mouses over node, they get set to visible and rendered
+
+
+2/11/14
+Have button to filter two different types of verticies in bipartitie graph
+for this data, treat maximum number of edges as if graph is bipartiti
+make sure that average degree is E / V and not the other way around
+fix slider (was working last night, look at diff from then and now)
+
+link view to the documentation of explanation of vertex labeling
+when switching to new file, make sure to clear old canvas to prevent old edge artifcats
+
+on bucketing of certain attrs (cash damage etc.) measure the number of beans in each bucket, and set the size of the vertex to be propotional to the number of beans
+
+check into the edge between the center of the stars. Should it be the case that the edge between them should be red? 
+
+check into possible resource leak as number of graphs read increases
+
+
+
+write script to do the following:
+
