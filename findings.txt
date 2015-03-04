@@ -389,5 +389,6 @@ High Color stars are describe the set of accident attributes that occur more fre
 way to check, look at 
 
 
-
+2/24/15
+plotted incident occurence distro. exponential in shape, over 91% of crossings dont have incidencs. over 95% of crossings dont have 1 incident
 

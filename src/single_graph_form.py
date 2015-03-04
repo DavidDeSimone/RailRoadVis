@@ -9,7 +9,7 @@ import xlwt
 #Used for writing to local directory
 local = './crossings/'
 
-THRESH = 16
+THRESH = 7
 
 def main():
 	
@@ -17,6 +17,13 @@ def main():
 		print 'Error, invalid number of command line args'
 		return
 
+
+	#exports degree distro in spreadsheet
+	if sys.argv[1] == 'print_inci_dist':
+		printInciDistro()
+		return
+
+	#exports data into spreadsheet format
 	if sys.argv[1] == 'export_all':
 		exportAll()
 		return
@@ -38,8 +45,9 @@ def main():
 	#construct graphs for relevant files
 	for index in xrange(1, len(sys.argv)):
 		ID = unicode(sys.argv[index])
-		graph = construct(ID, dbfT, inci_dic)
-		printJSON(graph, ID)
+		graph, num_incidents, ID = construct(ID, dbfT, inci_dic)
+		if graph is not None:
+			printJSON(graph, ID)
 
 def construct(ID, dbfT, inci_dic, threshold=0):
 	G = nx.Graph()
@@ -146,7 +154,7 @@ def printJSON(graph, ID):
 	write_t.write(json.dumps(data))
 	write_t.close()
 
-	g_file.write(ID + '.json,\n')
+	g_file.write('"' + ID + '.json",\n')
 
 
 
@@ -231,9 +239,11 @@ def gen_list(pair):
 	star1 = nodes[0]
 	star2 = nodes[0]
 	for node in nodes:
-		if MST.degree(node[0]) > MST.degree(star1[0]):
+		if MST.degree(node[0]) >= MST.degree(star1[0]):
 			star2 = star1
 			star1 = node
+		elif MST.degree(node[0]) >= MST.degree(star2[0]):
+			star2 = node
 
 	outlier_list = list()
 	for node in nodes:
@@ -264,6 +274,53 @@ def gen_list(pair):
 	return ret_list
 
 
+
+def printInciDistro():
+	filename = 'inci_distro.xls'
+
+	book = xlwt.Workbook()
+	sh = book.add_sheet('sheet1', cell_overwrite_ok=True)
+
+	num_cols = 2
+
+	sh.write(0, 0, "inci_degree")
+	sh.write(0, 1, "freq")
+
+	dbfT = dp.openDBFTable('../gcispubl.DBF')
+	inci_dic = dp.getInciDict(dp.openXLSFiles('../IncidentData'))
+
+	dbfT.open()
+
+	tmp_dict = dict()
+
+	for x in xrange(0, 37):
+		tmp_dict[x] = 0
+
+	for record in dbfT:
+		if record.crossing not in inci_dic:
+			if 0 not in tmp_dict:
+				tmp_dict[0] = 1
+			else:
+				tmp_dict[0] += 1
+
+			sh.write(1, 0, 0)
+			sh.write(1, 1, tmp_dict[0])
+
+		else:
+			inci_ls = inci_dic[unicode(record.crossing)]
+			num_inci = len(inci_ls)
+			if num_inci not in tmp_dict:
+				tmp_dict[num_inci] = 1
+			else:
+				tmp_dict[num_inci] += 1
+
+			sh.write(num_inci + 1, 0, num_inci)
+			sh.write(num_inci + 1, 1, tmp_dict[num_inci])
+
+
+	#saving....
+	book.save(filename)
+
 def printAll(threshold):
 	dbfT = dp.openDBFTable('../gcispubl.DBF')
 	inci_dic = dp.getInciDict(dp.openXLSFiles('../IncidentData'))
@@ -274,8 +331,9 @@ def printAll(threshold):
 
 	for crossing in dbfT:
 		ID = unicode(crossing.crossing)
-		graph, num_incidents = construct(ID, dbfT, inci_dic, threshold)
-		printJSON(graph, ID + '(' + unicode(num_incidents) + ')')
+		graph, num_incidents, ID = construct(ID, dbfT, inci_dic, threshold)
+		if graph is not None:
+			printJSON(graph, ID + '(' + unicode(num_incidents) + ')')
 
 if __name__=="__main__":
 	main()
