@@ -5,16 +5,12 @@ from networkx.readwrite import json_graph
 import os
 import sys
 import xlwt
-from multiprocessing import Process, Lock, Value
 
 #Used for writing to local directory
 local = './crossings/'
 
-#Global Spreadsheet variables
-CURRENT_ROW = 1
-
-LOWER_BOUND = 6
-UPPER_BOUND = 32
+THRESH = 7
+UPPER_BOUND = 10
 
 def main():
 	
@@ -43,18 +39,6 @@ def main():
 		printAll(sys.argv[2])
 		return
 
-	#Command multi_all will generate all graphs within range
-	#with multi-core optimizations
-	if(sys.argv[1] == 'multi_all'):
-		multi_all()
-		return
-
-	#Command multi_export will export the statistic spreadsheet
-	#of all graphs within range with multi-core optimization
-	if(sys.argv[1] == 'multi_export'):
-		multi_export()
-		return
-
 	#Open Relevant Files
 	dbfT = dp.openDBFTable('../gcispubl.DBF')
 	inci_dic = dp.getInciDict(dp.openXLSFiles('../IncidentData'))
@@ -78,17 +62,17 @@ def construct(ID, dbfT, inci_dic, threshold=0):
 	inci_ls = inci_dic[ID]
 	num_incidents = len(inci_ls)
 
-	if num_incidents < LOWER_BOUND or num_incidents > UPPER_BOUND:
+	if num_incidents < THRESH or num_incidents > UPPER_BOUND:
+		print 'Returning'
 		return None, 0, None
 
-	#print 'Number of incidents for crossing ' + str(ID) + ' is ' + str(len(inci_ls))
+	print 'Number of incidents for crossing ' + str(ID) + ' is ' + str(len(inci_ls))
 
 	#convert this crossing to a python dictionary
 	crossing_dict = getCrossingDict(dbfT, ID)
 
 	#For each co-occuring key value pair, form an edge and 
 	#incriment the co-occurnece of that pair
-	##TODO fix possibility of unicode error on casts to strings in the below segment
 	idLabel = 0
 	for inci in inci_ls:
 		for c_key_t, c_value_t in crossing_dict.iteritems():
@@ -97,6 +81,7 @@ def construct(ID, dbfT, inci_dic, threshold=0):
 			c_value = str(c_value_t)
 
 			crossingKey = c_key + ':' + c_value
+
 
 			if not G.has_node(crossingKey):
 				G.add_node(crossingKey)
@@ -139,6 +124,8 @@ def construct(ID, dbfT, inci_dic, threshold=0):
 
 					idLabel += 1
 
+
+
 				try:
 					if G.has_edge(crossingKey, inciKey):
 						G.edge[crossingKey][inciKey]['value'] += 1
@@ -152,9 +139,12 @@ def construct(ID, dbfT, inci_dic, threshold=0):
 					print 'Unicode Error'
 
 
+
 	#dbfT.close()
 	return G, num_incidents, ID
 
+g_file = open('full_list.json', 'a')
+g_file.write("[")
 def printJSON(graph, ID):
 	if graph is None:
 		return
@@ -164,6 +154,10 @@ def printJSON(graph, ID):
 	data = json_graph.node_link_data(graph)
 	write_t.write(json.dumps(data))
 	write_t.close()
+
+	g_file.write('"' + ID + '.json",\n')
+
+
 
 def getCrossingDict(dbfT, ID):
 	ret_dict = dict()
@@ -198,62 +192,6 @@ def exportAll():
 			graph_ls.append([graph, num_incidents, ID])
 
 	conv_spread_sheet(graph_ls)
-
-
-def multi_export():
-	lock = Lock()
-	book, sh = initalize_export()
-	CURRENT_ROW = Value('i', 1)
-	exportRange(0, 150000, book, sh, CURRENT_ROW, lock)
-	#Process(target=exportRange, args=[0, 50000, book, sh, CURRENT_ROW, lock]).start()
-	#Process(target=exportRange, args=[50001, 100000, book, sh, CURRENT_ROW, lock]).start()
-	#Process(target=exportRange, args=[100001, 150000, book, sh, CURRENT_ROW, lock]).start()
-	#Process(target=exportRange, args=[150001, 199999, book, sh, CURRENT_ROW, lock]).start()
-
-def initalize_export():
-	book = xlwt.Workbook()
-	sh = book.add_sheet('sheet1')
-
-	sh.write(0, 0, "crossID")
-	sh.write(0, 1, "num_incidents")
-	sh.write(0, 2, "star co_occurrence")
-	sh.write(0, 3, "star 1")
-	sh.write(0, 4, "star 2")
-	sh.write(0, 5, "outliers_roots")
-	sh.write(0, 6, "outlier_children")
-	sh.write(0, 7, "num_outlier_roots")
-	sh.write(0, 8, "num_children")
-
-	return book, sh
-
-def exportRange(min_value, max_value, book, sh, CURRENT_ROW, lock):
-	dbfT = dp.openDBFTable('../gcispubl.DBF')
-	inci_dic = dp.getInciDict(dp.openXLSFiles('../IncidentData'))
-
-	dbfT.open()
-
-	for x in xrange(min_value, max_value):
-		crossing = dbfT[x]
-		ID = unicode(crossing.crossing)
-		graph, num_incidents, ID = construct(ID, dbfT, inci_dic)
-		if graph is not None:
-			write_to_sheet(graph, num_incidents, ID, book, sh, CURRENT_ROW, lock)
-
-def write_to_sheet(graph, num_incidents, ID, book, sh, CURRENT_ROW, lock):
-	item = gen_list([graph, num_incidents, ID])
-		
-	lock.acquire()
-	print 'Lock acquired'
-	for y in xrange(0, len(item)):
-		sh.write(CURRENT_ROW.value, y, item[y])	
-
-	print CURRENT_ROW.value
-	CURRENT_ROW.value += 1
-	print 'Saving sheet..'
-	book.save('exportSheet_m.xls')
-	print 'lock released'
-	lock.release()
-
 
 #TODO move this to another file
 def conv_spread_sheet(graph_pairs):
@@ -293,64 +231,50 @@ def gen_list(pair):
 	ID = pair[2]
 
 	ret_list.append(str(ID))
-	ret_list.append(num_incidents)
+	ret_list.append(str(num_incidents))
 
 	#Find the maximum spanning tree of the graph
 	MST = nx.minimum_spanning_tree(graph, 'value')
 
 	nodes = graph.nodes(data=True)
-	star1 = None
-	star2 = None
+	star1 = nodes[0]
+	star2 = nodes[0]
+	for node in nodes:
+		if MST.degree(node[0]) >= MST.degree(star1[0]):
+			star2 = star1
+			star1 = node
+		elif MST.degree(node[0]) >= MST.degree(star2[0]):
+			star2 = node
 
-	nodes_ls = sorted(nodes, key=lambda item: MST.degree(item[0]), reverse=True)
-	star1 = nodes_ls[0]
-	star2 = nodes_ls[1]
-	
-	print star1[0]
-	print star2[0]
-	
-
-	if graph.has_edge(star1[0], star2[0]):
-		edge = graph.edge[star1[0]][star2[0]]['value']
-		ret_list.append(edge)
-	elif graph.has_edge(star2[0], star1[0]):
-		edge = graph.edge[star2[0]][star1[0]]['value']
-		ret_list.append(edge)
-	else:
-		ret_list.append(0)
-
-	outlier_parents = list()
 	outlier_list = list()
 	for node in nodes:
-		if node[0] not in nx.neighbors(MST, star1[0]):
-			if node[1]['isInci'] != star1[1]['isInci']:
+		neighbors = nx.neighbors(MST, node[0])
+		print neighbors
+		if star1[1]['isInci']:
+			if node[1]['isInci'] is False and star1[0] not in neighbors:
 				outlier_list.append(node)
-				if nx.neighbors(MST, node[0])[0] not in outlier_parents:
-					outlier_parents.append(nx.neighbors(MST, node[0])[0])
-		if node[0] not in nx.neighbors(MST, star2[0]):
-			if node[1]['isInci'] != star2[1]['isInci']:
+		else: #else star1 is not an incident node 
+			if node[1]['isInci'] and star1[0] not in neighbors:
 				outlier_list.append(node)
-				if nx.neighbors(MST, node[0])[0] not in outlier_parents:
-					outlier_parents.append(nx.neighbors(MST, node[0])[0])
+		if star2[1]['isInci']:
+			if node[1]['isInci'] is False and star2[0] not in neighbors:
+				outlier_list.append(node)
+		else: #star2 is not an incident node
+			if node[1]['isInci'] and star2[0] not in neighbors:
+				outlier_list.append(node)
 
 	ret_list.append(star1[1]['label'])
 	ret_list.append(star2[1]['label'])
-
-	
-	stn = ""
-	for out in outlier_parents:
-		stn += "||" + out
 
 	strt = ""
 	for out in outlier_list:
 		strt += "||" + out[1]['label']
 
-	ret_list.append(stn)
 	ret_list.append(strt)
-	ret_list.append(len(outlier_parents))
-	ret_list.append(len(outlier_list))
-
+	ret_list.append(str(len(outlier_list)))
 	return ret_list
+
+
 
 def printInciDistro():
 	filename = 'inci_distro.xls'
@@ -397,28 +321,6 @@ def printInciDistro():
 
 	#saving....
 	book.save(filename)
-
-def multi_all():
-	Process(target=printSubSet, args=[0, 50000]).start()
-	Process(target=printSubSet, args=[50001, 100000]).start()
-	Process(target=printSubSet, args=[100001, 150000]).start()
-	Process(target=printSubSet, args=[150001, 199999]).start()
-
-def printSubSet(lower, upper):
-	dbfT = dp.openDBFTable('../gcispubl.DBF')
-	inci_dic = dp.getInciDict(dp.openXLSFiles('../IncidentData'))
-
-	dbfT.open()
-
-	graph_ls = list()
-
-	for x in xrange(lower, upper):
-		crossing = dbfT[x]
-		ID = unicode(crossing.crossing)
-		graph, num_incidents, ID = construct(ID, dbfT, inci_dic)
-		if graph is not None:
-			printJSON(graph, ID + '(' + unicode(num_incidents) + ')')
-
 
 def printAll(threshold):
 	dbfT = dp.openDBFTable('../gcispubl.DBF')
