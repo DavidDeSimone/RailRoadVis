@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+
+<title>Graph Cards</title>
+
+<body>
+
+<link rel="stylesheet" type="text/css" href="../css/view.css">
+<!-- Dynamic Links 
+<script src="http://bl.ocks.org/syntagmatic/raw/3341641/render-queue.js"></script>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+-->
+<script src="../js/d3.v2.js"></script>
+<script src="../js/renderQueue.js"></script>
+<script src="../js/jquery-1.11.2.min.js"></script>
+<script src="../js/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="../css/jquery-ui.css">
+
+<script src="../js/jquery.flip.min.js"></script>
+
+<!-- Library for plot display -->
+<script src="../js/jquery.flot.js"></script>
+
+<!-- Library for UnionFind DataStructure -->
+<script src="../js/union-find.js"></script>
+
+<!-- Script for map placement object-->
+<script src="../js/GlobalMap.js"></script>
+
+<!-- Scripts and CSS for global map -->
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
+<!-- Custom stylesheet for flipping cards -->
+<link rel="stylesheet" type="text/css" href="../css/FrameStyle.css">
+
+<div id="mainTitle">
+<center><b>Graph Cards</b></center>
+</div>
+
+<!-- container for global map -->
+<div id="map">
+</div>
+
+<!-- Central Container to center statistics, canvas and control panel -->
+<div id="upperContainer" class="centralCont">
+<!-- Panel containing statistical measures and charts -->
+<div id="stats" class="sidePanel">
+
+<!-- Drop down menu used to select graph data -->
+<center>Displayed Graph:</center>
+<select id="graphSelect">
+  <option>Full</option>
+  <option>2</option>
+</select>
+<p id="numNodes">Number of vertices: </p>
+<p id="numEdges">Number of egdes: </p>
+<p id="graphStats"></p>
+<p> ... </p>
+<center><b>Graph Density</b></center>
+<div id="freqPlot" class="plot"></div>
+</div>
+
+<!-- Panel containing the central graph for display -->
+<div id="mainGraph"></div>
+
+<!-- Panel containing the controls and filtering mechanisms -->
+<div id="controls" class="sidePanel">
+<button id="saveGraph">Save Graph</button>
+<button id="resetMainGraph">Reset Main Graph</button>
+<button id="screenShot">Take Screen Shot</button>
+<button id="force">Apply Force</button>
+<button id="iterForce">Iterative Force</button>
+<button id="labels">Toggle Labels</button>
+<p/>
+
+<div id="inputBoxes">
+Gravity <textarea id="gravity" class="inputBox">Enter Gravity</textarea>
+<button id="gravitySet">Set</button>
+Charge <textarea id="charge" class="inputBox">Enter Charge</textarea>
+<button id="chargeSet">Set</button>
+Link Str <textarea id="linkstr" class="inputBox">Enter Link Str</textarea>
+<button id="linkStrSet">Set</button>
+</div>
+
+<p/>
+<div id="slider"></div>
+<p id="dynamicStats"></p>
+<p/>
+<center><b>Average Degree</b></center>
+<div id="occPlot" class="plot"></div>
+<p/>
+<center><b>Algorithms</b></center>
+<button id="maxTree">Maximum Spanning Tree</button>
+<button id="minTree">Minimum Spanning Tree</button>
+<button id="peeling">Peeling</button>
+<center><b>Layout Helpers</b></center>
+<button id="reduceMST">Reduce MST</button>
+<button id="iterateReduceMST">iterate RMST</button>
+</div>
+
+</div> <!-- End of upper container -->
+
+<div class="buffer"></div>
+
+<div id="midContainer" class="midCont">
+<select>
+  <option>Filter1</option>
+  <option>Filter2</option>
+</select>
+</div>
+
+
+
+<!-- Center binder container for lower divs -->
+<div id="lowerCont" class="centralCont">
+
+<div id="sideView" class="secondCanvas"></div>
+
+<!-- Panel containing the cards -->
+<div id="cardView" class="cardPanel">
+<center id="relatedTitle"><b>Related Cards<b></center>
+
+<div id="cardOne" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardOneFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardOneBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+<div id="cardTwo" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardTwoFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardTwoBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+
+<div id="cardThree" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardThreeFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardThreeBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+
+<div id="cardFour" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardFourFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardFourBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+
+<div id="cardFive" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardFiveFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardFiveBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+
+<div id="cardSix" class="card">
+<div class="f1_container">
+<div class="f1_card" >
+  <div id="cardSixFace" class="front face">
+   <p>Crossing: 016481T</p>
+   <p>Date: 11/06/14</p>
+   <p>State ID: 48</p>
+   <p>City: 5300</p>
+   <p>Lat: 364057224</p>
+   <p>Long: 1007924176</p>
+  </div>
+  <div id="cardSixBack" class="back face center">
+    <p>Railroad: SW</p>
+	<p>Highway: ST 0000</p>
+	<p>Street: PERRYTON</p>
+	<p>Crossing Type: 3</p>
+	<p>Maximum Train Speed: 20</p>
+	<p>Maximum Car Speed: 20</p>
+  </div>
+</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+var WIDTH = $('#mainGraph').width();
+var HEIGHT = $('#mainGraph').height();
+
+var NUM_NODES = 2500;
+var NUM_EDGES = 25000;
+
+/* Variables for the time varying density plots */
+var renderStamp = 0;
+var veStamp = 0;
+var dPlot;
+var vePlot;
+var updateInterval = 5;
+
+/* List of plotted desity data points */
+var densityData = [];
+
+/* List of visible edges and vertices */
+var vData = [];
+var eData = [];
+
+/* Global varible used to denote if the user is exploring data by pinning verticies 
+ * to the view. If this is the case, we will not render on mousemouse events
+ */
+var graphPinned = false;
+var pinnedStack = [];
+
+/* Function used to color edges/nodes according to hotal metal scale */
+var hotMetalColor;
+
+var links = [];
+var nodes = [];
+
+/* Name of the current graph file read */
+var currentGraphName = "dummy";
+
+/* Variables that control the force directed layout paramers */
+var GRAVITY = 0.06;
+var LINK_DISTANCE = 5;
+var CHARGE = -120;
+var SCALE = 1;
+
+/* Linear transformation scales used for "semantic" canvas zooming */
+var x = d3.scale.linear()
+        .domain([0, WIDTH])
+        .range([0, WIDTH]);
+
+var y = d3.scale.linear()
+          .domain([0, HEIGHT])
+          .range([HEIGHT, 0]);
+
+var cv = d3.select("#mainGraph")
+             .append("canvas")
+             .attr("id", "canvas")
+             .attr("width", WIDTH)
+             .attr("height", HEIGHT);
+
+var canvas = cv
+            .call(d3.behavior.zoom().x(x).y(y).scaleExtent([0.0001,12]).on("zoom", zoom))
+             .node()
+             .getContext("2d");
+
+var getColor = d3.scale.linear()
+               .domain([0, 0.5, 1])
+               .range(["#ef2212", "#e7c767", "#2799df"])
+               .interpolate(d3.interpolateHcl); 
+
+var shiftKey = false;
+$(document).on('keyup keydown', function(e){ shiftKey = e.shiftKey } );
+readPoints('map_points.json');
+
+function readPoints(pointsStr) {
+   $.getJSON('./' + pointsStr, function(data) {
+      initMap(data);
+    });
+};
+
+function generateCards(num) {
+	var cards = d3.range(num).map(function(d, i) {
+		return {
+			name: Math.random().toString(36)
+		};
+	});
+
+	return cards;
+};
+
+function generateNodes(num) {
+   var nodes = d3.range(num).map(function(d, i) {
+     return {
+       x: Math.random() * WIDTH,
+       y: Math.random() * HEIGHT,
+       r: Math.random() * 10 + 3,
+       value: Math.random() * 10, 
+       id: i,
+       color: getColor(Math.random()),
+       label: Math.random().toString(36).replace(/[^a-h]+/g, '').substr(0, 8), //Generate random hex string 
+       neighbors: [],
+       nlinks: [],
+       visible: true,
+       pinned: false,
+       shape: "cross",
+       type: "node"
+     };
+   });
+
+  return nodes;
+};
+
+function generateLinks(nodes, num) {
+   var links = d3.range(num).map(function(d) {
+       return {
+         source: nodes[Math.floor(Math.random() * nodes.length)],
+         target: nodes[Math.floor(Math.random() * nodes.length)],
+         color: getColor(Math.random()),
+         value: Math.random(),
+         visible: true,
+         type: "link"
+       };
+   });
+   
+   setNeighbors(links);
+   return links;
+};
+
+function setNeighbors(linksArr) {
+  for(i = 0; i < linksArr.length; i++) {
+    var l = linksArr[i];
+    var n1 = l.source;
+    var n2 = l.target;
+
+    n1.neighbors.push(n2);
+    n2.neighbors.push(n1);
+    n1.nlinks.push(l);
+    n2.nlinks.push(l);
+  }
+};
+
+var clear_canvas = function() {
+    canvas.clearRect(0,0,WIDTH, HEIGHT);
+};
+
+function renderNode(d) {
+  if(graphPinned) {
+    if(!d.pinned) {
+      return;
+    }
+  }
+
+  if(!d.visible) {
+    return;
+  } 
+
+  var cx = x(d.x);
+  var cy = y(d.y);
+
+  canvas.fillStyle = d.color;
+  canvas.strokeStyle = d.color;
+
+  if(d.shape === 'square') {
+    renderSquare(canvas, cx, cy, d.r);
+  } else
+  if(d.shape === 'circle') {
+    renderCircle(canvas, cx, cy, d.r);
+  } else
+  if(d.shape === 'cross') {
+    renderCross(canvas, cx, cy, d.r);
+  } else {
+    console.log("Asked to render unknown shape");
+  }
+ 
+};
+
+function renderSquare(canvas, cx, cy, r) {
+  canvas.beginPath();
+  canvas.fillRect(cx, cy, r, r);
+  canvas.stroke();
+  canvas.fill();
+};
+
+function renderCircle(canvas, cx, cy, r) {
+  canvas.beginPath();
+  canvas.arc(cx, cy, r, 0, 2 * Math.PI, false);
+  canvas.fill();
+  canvas.stroke();
+};
+
+function renderCross(canvas, cx, cy, r) {
+  canvas.beginPath();
+  canvas.moveTo(cx - r, cy - r);
+  canvas.lineTo(cx + r, cy + r);
+  canvas.stroke();
+
+  canvas.moveTo(cx + r, cy - r);
+  canvas.lineTo(cx - r, cy + r);
+  canvas.stroke();
+};
+
+function renderEdge(e) {
+  if(graphPinned) {
+    if(e.source.pinned === false || e.target.pinned === false) {
+      return;
+    }
+  }
+
+  if(!e.visible) {
+    return;
+  }
+
+  if(e.source.visible === false || e.target.visible === false) {
+    return;
+  }
+
+  var cx = x(e.source.x);
+  var cy = y(e.source.y);
+
+  var dx = x(e.target.x);
+  var dy = y(e.target.y);
+
+   canvas.strokeStyle = e.color;
+   canvas.beginPath();
+   canvas.moveTo(cx, cy);
+   canvas.lineTo(dx, dy);
+   canvas.stroke();
+   canvas.fill();
+   
+};
+
+function renderData(o) {
+  if(o.type === "node") {
+    renderNode(o);
+  } else
+  if(o.type === "link") {
+    renderEdge(o);
+  } else {
+    console.log("Error!");
+  }
+};
+
+function FDL(nodesArr, linksArr) {
+  var cloujure = getMax(linksArr);
+  var force = d3.layout.force()
+              .charge(CHARGE)
+              .linkDistance(LINK_DISTANCE)
+              .gravity(GRAVITY)
+              .linkStrength(function(link) {
+                return SCALE * (link.value / cloujure);
+              })
+              .size([WIDTH, HEIGHT]);
+
+       force.nodes(nodesArr)
+            .links(linksArr);
+      
+       force.start();
+       for(i = 0; i < 10; i++) force.tick();
+       force.stop();
+        
+       return nodesArr.concat(linksArr);
+};
+
+
+var render = null;
+var nodes, links;
+var data = null;
+
+function setGraph(nodesArr, linksArr) {
+
+/* Sets the render queue for the canvas */
+render = renderQueue(renderData).clear(clear_canvas);
+//render.rate(200000)
+nodes = nodesArr;
+links = linksArr;
+
+
+/* Runs D3's Force Directed Layout algorithm */
+data = FDL(nodes, links);
+
+/* Renders the data via render queue */
+render(data);
+setSlider(links);
+
+/* Sets the various stats in the statistics panel */
+setVertexStats(nodes.length);
+setEdgeStats(links.length);
+setGraphStats(nodes, links);
+
+/* Sets the interactive plots */
+initDensityPlot();
+initVEPlot();
+
+
+
+
+};
+
+//Code for generating random graph for debugging
+//var _n = generateNodes(NUM_NODES);
+//var _e = generateLinks(_n, NUM_EDGES);
+//setGraph(_n, _e);
+//END DEBUG
+
+
+/* Mouse motion listener for node mouse over events in the canvas */
+/* For zoom-in, coordiates are being translated via objects x and y */
+/* To determine correct position, apply x and y to the marked coordiantes */
+/* i.e. x(d.x) and y(d.y) for node d */
+
+/* Boolean to determine if we are currently hovering over a node */
+var onNode = false;
+
+cv.on("mousemove", function() {
+  var evt = d3.mouse(this);
+
+  /* Boolean  changed to show if we have recently moused over a node */
+  var localOnNode = false;
+
+  /* Temporary variable for the previous state of onNode */
+  var currentOnNode = onNode;
+
+  var thresHold = 3;
+  var examine = true;
+  for(i = 0; i < nodes.length; i++) {
+    var d = nodes[i];
+    d.visible = false;
+
+    /* If we are in 'pinning' mode, i.e. the user has clicked on a node */
+    /* We don't want to re-render on mouse movement of invisible non pinned nodes */
+    var skip = false;
+    if(graphPinned) {
+      if(!d.pinned) {
+        skip = true;
+      }
+    }
+
+
+  if(!skip) {
+    /* If the mouse cursor is within radius, highlight the the node and it's neighbors */
+    if(withInRadius(d, evt[0], evt[1], x, y, thresHold)) {
+      localOnNode = true;
+      d.visible = true;
+      //Used for rendering node nieghborhood in side Canvas
+      //nodeCallBack(d);
+    
+      for(j = 0; j < d.neighbors.length; j++) {
+        var k = d.neighbors[j];
+  
+        k.visible = true;
+        //k.pinned = true;
+        
+      } //end of neighbor loop
+      
+
+     /* We loop over the remaining nodes, marking 
+      * non-neighbors as non-visible 
+      */
+      i++;
+      while(i < nodes.length) {
+        var m = nodes[i];
+
+        if(!inArr(d.neighbors, m)) {
+          m.visible = false;
+        }
+
+        i++;
+      }
+        checkEdges(links);
+        hideSingletons(links);
+        if(shiftKey) {
+          labelVisible(nodes);
+        } else {
+           showLabel(canvas, d, x, y);
+        }
+        /* After we have moused over a node, we can break for this loop */
+        break;
+
+      }
+    }
+  }
+
+    /* If we mouse out, mark all nodes visible */
+    onNode = localOnNode;
+    if(!onNode) {
+      for(i = 0; i < nodes.length; i++) {
+        n = nodes[i];
+        n.visible = true;
+      }
+      checkEdges(links);
+      hideSingletons(links);
+    }
+
+    /* If the value of onNode has changed from this function call */
+    /* Call a render, else dont waste the effort */
+    if(currentOnNode !== onNode) {
+      renderVisible();
+    }
+
+});
+
+
+/* Click listener for mouse clicking events */
+cv.on("click", function() {
+  var evt = d3.mouse(this);
+  var thresHold = 4;
+
+  for(var i = 0; i < nodes.length; i++) {
+    var d = nodes[i];
+
+    /* If the translated coordinates are within a a circular radius of the click event */
+    if(withInRadius(d, evt[0], evt[1], x, y, thresHold)) {
+      graphPinned = true;
+      d.pinned = true;
+      d.visible = true;
+      pinnedStack.push(d);
+
+      for(var j = 0; j < d.neighbors.length; j++) {
+        var n = d.neighbors[j];
+        n.pinned = true;
+        n.visible = true;
+      }
+
+      break;
+    }
+  }
+});
+
+function withInRadius(node, xc, yc, xTransform, yTransform, threshHold) {
+  return (Math.abs((xTransform(node.x)) - xc) < threshHold && Math.abs((yTransform(node.y) ) - yc) < threshHold);
+};
+
+function checkEdges(linksArr) {
+  for(var i = 0; i < linksArr.length; i++) {
+    var edge = linksArr[i];
+    if(!(edge.source.visible && edge.target.visible)) {
+      edge.visible = false;
+    } else {
+      if(graphPinned) {
+        if(edge.pinned) {
+          if(edge.value >= low && edge.value <= high) {
+            edge.visible = true;
+          }
+        }
+      } else {
+        edge.visible = true;
+      }
+    }
+  }
+};
+
+function labelVisible(nodesArr) {
+  for(var i = 0; i < nodesArr.length; i++) {
+    var node = nodesArr[i];
+    if(node.visible) {
+       showLabel(canvas, node, x, y);
+    }
+  }
+}
+
+function cloneGraph(nodesArr) {
+  var ns = [];
+  var es = [];
+
+  for(var i = 0; i < nodesArr.length; i++) {
+    var newNode = nodeClone(nodesArr[i]);
+    ns.push(newNode);
+  }
+
+  for(var k = 0; k < links.length; k++) {
+    for(var n = 0; n < ns.length; n++) {
+      for(var m = 0; m < ns.length; m++) {
+        var edge = links[k];
+        var node1 = ns[n];
+        var node2 = ns[m];
+
+        var clone = null;
+
+        if(edge.source.id === node1.id && edge.target.id === node2.id
+          || edge.source.id === node2.id && edge.target.id === node1.id) {
+          clone = edgeClone(edge, node1, node2);
+        } 
+
+        if(clone !== null) {
+          es.push(clone);
+        }
+
+      }
+    }
+  }
+
+  return [ns, es];
+};
+
+
+
+var svg = null;
+//Note this will be a little hacky due to time limits 
+function nodeCallBack(node) {
+  $('#sideView').html('');
+  //Do Node callback stuffs here
+  //Create induced subgraph from node and neighbors passed, 
+  //show in side view
+
+  $('#sideView').append("<p> Induced Subgraph for node: " + node.id + "</p>");
+
+  var w = $('#sideView').width();
+  var h = $('#sideView').height();
+
+  var nodesArr = [];
+  for(var j = 0; j < node.neighbors.length; j++) {
+    nodesArr.push(node.neighbors[j]);
+  }
+
+  var grph = cloneGraph(nodesArr);
+
+  var ns = grph[0];
+  var es = grph[1];
+
+  renderSideView(ns, es, w, h);
+
+};
+
+function renderSideView(ns, es, w, h) {
+
+svg = d3.select('#sideView')
+          .append('svg')
+          .attr('id', 'svg')
+          .attr('width', w)
+          .attr('height', h)
+          .append('g')
+          .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", svgZoom));
+
+    svg.append('rect')
+        .attr("class", "overlay")
+        .attr("width", w)
+        .attr("height", h)
+        .style("fill", "white");
+
+   var force = d3.layout.force()
+                .charge(-120)
+                .linkDistance(30)
+                .gravity(0.6)
+                .size([w, h]);
+
+    force.nodes(ns)
+         .links(es)
+         .start();
+
+    var no = svg.selectAll(".node")
+          .data(ns).enter()
+          .append("circle")
+          .attr("class", "node")
+          .attr("r", function(d) { return d.r; })
+          .style("fill", function(d) { return d.color; })
+          .on("mouseover", function(d) { selectNode(nodes, d); })
+          .on("mouseout", function(d) { deSelectNode(nodes, d); })
+          .call(force.drag);
+
+      var ls = svg.selectAll(".link")
+          .data(es).enter()
+          .append("line")
+          .attr("class", "link")
+          .style("stroke", function(e) { return e.color; })
+          .style("stroke-width", 0.5);
+
+
+      no.on("click", function(d) {
+       // showCards(cards, d);
+      })
+
+          force.on("tick", function() {
+            ls.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+
+            no.attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+          });
+};
+
+function selectNode(nodesArr, node) {
+  if(node.hasOwnProperty('parent')) {
+    node.parent.r += 20;
+  } else {
+    //This is a parent node
+    node.r += 20;
+  }
+  console.log(node.r);
+  console.log("Nodes mouse overed!");
+
+  //If(svg) update SVG info
+
+  render(data);
+};
+
+function deSelectNode(nodesArr, node) {
+  if(node.hasOwnProperty('parent')) {
+    node.parent.r -= 20;
+
+    //This is an SVG node, manipulate DOM
+  } else {
+    //This is a parent node
+    node.r -= 20;
+  }
+
+  //if SVG update SVG info
+
+  render(data);
+};
+
+function showCards(cards, node) {
+  //TODO
+};
+
+function svgZoom() {
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+};
+
+function nodeClone(node) {
+  var clone = {};
+  
+  clone.parent = node;
+  clone.x = node.x;
+  clone.y = node.y;
+  clone.r = node.r;
+  clone.value = node.value;
+  clone.id = node.id;
+  clone.label = node.label;
+  clone.color = node.color;
+  clone.visible = node.visible;
+  clone.pinned = node.pinned;
+  clone.type = node.type;
+
+  return clone;
+};
+
+function edgeClone(edge, n, m) {
+  var clone = {};
+
+  clone.target = n;
+  clone.source = m;
+  clone.color = edge.color;
+  clone.value = edge.value;
+  clone.visible = edge.visible;
+  clone.type = edge.type;
+
+  return clone;
+};
+
+function showLabel(canv, node, xTransform, yTransform) {
+  canv.fillStyle = "black";
+  canv.fillText(node.label, xTransform(node.x), yTransform(node.y));
+};
+
+function inArr(arr, obj) {
+  for(var i = 0; i < arr.length; i++) {
+    if(arr[i] === obj) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/* Translation occurs during canvas rendering. */
+function zoom() {
+  renderVisible();
+};
+
+function getMax(nodesArr) {
+  var max = 0;
+
+  for(i = 0; i < nodesArr.length; i++) {
+    if(nodesArr[i].value > max) {
+      max = nodesArr[i].value;
+    }
+  }
+
+  return max;
+};
+
+var low = Number.MIN_VALUE, high = Number.MAX_VALUE;
+
+function setSlider(linksArr) {
+  var maxVal = getMax(linksArr);
+
+  $("#slider").slider({
+    range: true,
+    min: 0, 
+    max: maxVal,
+    values: [0, maxVal],
+    slide: function(event, ui) {
+      low = ui.values[0];
+      high = ui.values[1];
+
+      for(i = 0; i < linksArr.length; i++) {
+
+        var link = linksArr[i];
+        
+        if(graphPinned) {
+          if(link.value >= low && link.value <= high) {
+            if(link.pinned) {
+              link.visible = true;
+              link.source.visible = true;
+              link.target.visible = true;
+            } else {
+              link.visible = false;
+            }
+          } else {
+            link.visible = false;
+          }
+        } else { //Else the graph is not pinned
+          if(link.value >= low && link.value <= high) {
+            link.visible = true;
+            link.source.visible = true;
+            link.target.visible = true;
+          } else {
+            link.visible = false;
+          }
+        }
+      }
+
+      //graphPinned = true;
+
+      hideSingletons(linksArr);
+      renderVisible();
+    }
+  });
+};
+
+function hideSingletons(linksArr) {
+  for(var j = 0; j < linksArr.length; j++) {
+     var edge = linksArr[j];
+
+    var source = edge.source;
+    var target = edge.target;
+
+    source.visCount = source.neighbors.length;
+    target.visCount = target.neighbors.length;
+  }
+
+
+  for(var i = 0; i < linksArr.length; i++) {
+    var edge = linksArr[i];
+
+    var source = edge.source;
+    var target = edge.target;
+
+    if(!edge.visible) {
+      source.visCount--;
+      target.visCount--;
+    }
+
+  }
+
+  for(var k = 0; k < linksArr.length; k++) {
+    var edge = linksArr[k];
+
+    var source = edge.source;
+    var target = edge.target;
+
+    if(source.visCount === 0) {
+      source.visible = false;
+    }
+
+    if(target.visCount === 0) {
+      target.visible = false;
+    }
+
+  }
+};
+
+
+function resetVisibility(linksArr) {
+  graphPinned = false;
+
+  for(var i = 0; i < linksArr.length; i++) {
+    var e = linksArr[i];
+
+    e.source.visible = true;
+    e.source.pinned = false;
+
+    e.target.visible = true;
+    e.target.pinned = false;
+
+    e.visible = true;
+  }
+
+  render(data);
+};
+
+/* Button Listeners */
+$("#resetMainGraph").on("click", function() {
+  resetVisibility(links);
+});
+
+$("#screenShot").on("click", function() {
+  takeScreenShot();
+});
+
+$("#maxTree").on("click", function() {
+  showMaxTree(nodes, links);
+});
+
+$("#minTree").on("click", function() {
+  showMinTree(nodes, links);
+});
+
+
+$("#reduceMST").on("click", function() {
+  reduceMST();
+});
+
+$("#iterateReduceMST").on("click", function() {
+  iterateReduceMST('./complete_list.json')
+});
+
+$("#force").on("click", function() {
+  applyForce();
+});
+
+$("#gravitySet").on("click", function() {
+  GRAVITY = $("#gravity").val();
+});
+
+$("#chargeSet").on("click", function() {
+  CHARGE = $("#charge").val();
+});
+
+$("#linkStrSet").on("click", function() {
+  SCALE = $("#linkstr").val();  
+});
+
+$("#saveGraph").on("click", function() {
+  uploadGraph();
+  localStorage.setItem("recentGraph", links);
+});
+
+$("#peeling").on("click", function() {
+  //peelGraph(nodes, links);
+  //conformRailWayView();
+  iterateScreenShots('./complete_list.json');
+});
+
+
+function uploadGraph() {
+
+  $.ajax({
+    type: "POST",
+    url: "http://127.0.0.1:5000/saveg",
+    data: {
+      name: 'graph.json',
+      graph_json: JSON.stringify([nodes, links])}
+  });
+
+
+
+};
+
+
+function peelGraph(nodesArr, linksArr) {
+linksArr.sort(function(a, b) {
+  return b.value - a.value;
+});
+
+
+var current = linksArr[0].value;
+for(var i = 0; i < linksArr.length; i++) {
+  var edge = linksArr[i];
+
+  if(edge.visible && Math.abs(edge.value - current) > 0.1) {
+    //Run FDL
+    applyForce();
+
+    //Update Current
+    current = edge.value;
+  }
+
+}
+
+};
+
+
+/* Assigns buckets based off of mean and std. dev */
+function assignBuckets(arr) {
+
+};
+
+
+
+function takeScreenShot() {
+var ca = document.getElementById("canvas");
+var dataURL = ca.toDataURL();
+console.log(dataURL);
+
+  $.ajax({
+    type: "POST",
+    url: "http://127.0.0.1:5000/upload",
+    data: {
+      name: currentGraphName + ".png",
+      dataBase64: dataURL
+    }
+  });
+
+}
+
+/* Button listener for  the "Toggle Labels" button. When clicked, the button will show
+ * labels for all visible node elements in the display.
+ */
+var labelsShown = false;
+
+$("#labels").on("click", function() {
+  if(!labelsShown) {
+    for(var i = 0; i < nodes.length; i++) {
+      var d = nodes[i];
+
+      if(d.visible) {
+
+        var pinShow = true;
+        if(graphPinned) {
+          if(!d.pinned) {
+            pinShow = false;
+          }
+        }
+
+        if(pinShow) {
+          showLabel(canvas, d, x, y);
+        }
+      }
+    }
+    labelsShown = true;
+  } else {
+    renderVisible();
+    labelsShown = false;
+  }
+});
+
+var applied = false;
+var interval = null;
+$("#iterForce").on("click", function() {
+  if(!applied) {
+    interval = setInterval(applyForce, updateInterval);
+    applied = true;
+  } else {
+    applied = false;
+    clearInterval(interval);
+  }
+});
+
+$(".f1_card").on("mouseover", function(card) {
+  console.log("Mouse Over Card");
+  cardMouseOver(card);
+});
+
+$(".f1_card").on("mouseout", function(card) {
+  var cardObj = getCard(card);
+  deSelectNode(nodes, cardObj.node);
+  if(cardObj.node.hasOwnProperty('parent')) {
+    deSelectNode(nodes, cardObj.node.parent);
+  }
+});
+
+function applyForce() {
+  var visNodes = [];
+  var visEdges = [];
+
+  for(var i = 0; i < links.length; i++) {
+    var link = links[i];
+
+    var gp = false;
+    if(graphPinned) {
+      if(!link.source.pinned || !link.target.pinned) {
+        gp = true;
+      }
+    }
+
+
+    if(link.visible &&
+      link.source.visible && link.target.visible) {
+      if(!gp) {
+        visEdges.push(link);
+
+        if(!nodeInArr(visNodes, link.source)) {
+          visNodes.push(link.source);
+        }
+
+        if(!nodeInArr(visNodes, link.target)) {
+          visNodes.push(link.target);
+        }
+      }
+    }
+
+
+  }
+
+  var res = FDL(visNodes, visEdges);
+  render(res);
+};
+
+function cardMouseOver(card) {
+  var cardObj = getCard(card);
+  selectNode(nodes, cardObj.node);
+  if(cardObj.node.hasOwnProperty('parent')) {
+    selectNode(nodes, cardObj.node.parent);
+  }
+};
+
+function getCard(card) {
+  return { 
+    node: nodes[0], 
+    parent: nodes[0] 
+  };
+}
+
+function showMaxTree(nodesArr, linksArr) {
+  var sorting = function(a, b) {
+    return b.value - a.value;
+  };
+
+  showTree(nodesArr, linksArr, sorting);
+};
+
+function showMinTree(nodesArr, linksArr) {
+  var sorting = function(a, b) {
+    return a.value - b.value;
+  };
+
+  showTree(nodesArr, linksArr, sorting);
+}
+
+//TODO have this act on visible
+function showTree(nodesArr, linksArr, sortingFunction) {
+  graphPinned = true;
+  linksArr.sort(sortingFunction);
+
+  var unionFind = new UnionFind(nodesArr);
+  for(var i = 0; i < linksArr.length; i++) {
+    var e = linksArr[i];
+    e.visible = false;
+  }
+
+  for(var j = 0; j < linksArr.length; j++) {
+    var e = linksArr[j];
+
+    if(!unionFind.inSameGroup(e.source.id, e.target.id)) {
+      e.visible = true;
+      e.pinned = true;
+      e.source.pinned = true;
+      e.target.pinned = true;
+      e.source.visible = true;
+      e.target.visible = true;
+      unionFind.union(e.source.id, e.target.id);
+    }
+  }
+
+  render(data);
+};
+
+function nodeInArr(nodesArr, node) {
+  for(var i = 0; i < nodesArr.length; i++) {
+    if(nodesArr[i].id === node.id) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function setVertexStats(numNodes) {
+	$('#numNodes').html('Number of nodes ' + numNodes);
+};
+
+function setEdgeStats(numEdges) {
+	$('#numEdges').html('Number of edges ' + numEdges);
+};
+
+function getAverageWeight(arr) {
+	var sum = 0;
+
+	for(i = 0; i < arr.length; i++) {
+		sum += arr[i].value;
+	}
+
+	return sum / arr.length;
+};
+
+function setGraphStats(nodesArr, linksArr) {
+	//Average degree of main graph 
+	var avgDeg = linksArr.length / nodesArr.length;
+
+	//Average edge weight
+	var avgEWeight = getAverageWeight(linksArr);
+
+	$("#graphStats").html('<p>Average Degree ' + avgDeg + '</p>' +
+		'<p>Average Edge Weight ' + avgEWeight + '</p>');
+};
+
+function initPlot(plotStr, data) {
+
+  var plot = $.plot("#" + plotStr, [data], { 
+    series: {
+      shadowSize: 0
+    }, 
+    xaxis: {
+      min: 0,
+      max: 300
+    }
+  });
+  return plot;
+
+};
+
+function initDensityPlot() {
+  if(dPlot == null) {
+    densityData.push([renderStamp, getVisibleDensity(nodes, links)]);
+    renderStamp++;
+    dPlot = initPlot('occPlot', densityData);
+    updateDensityPlot();
+  } else {
+    console.log("Density plot already initalized");
+  }
+};
+
+function updateDensityPlot() {
+  var renderStamp = 300;
+  densityData.push([renderStamp, getVisibleDensity(nodes, links)]);
+  
+  var newDensityData = [];
+  for(var i = 0; i < densityData.length; i++) {
+    newDensityData[i - 1] = densityData[i];
+    newDensityData[i - 1][0]--;
+  }
+
+  dPlot.setData([newDensityData]);
+  dPlot.setupGrid();
+  dPlot.draw();
+
+  setTimeout(updateDensityPlot, updateInterval);
+};
+
+function getRealDensity(nodesArr, linksArr) {
+
+
+  var vis_nodes = 0;
+  for(var i = 0; i < nodesArr.length; i++) {
+    if(nodesArr[i].visible) {
+      vis_nodes++;
+    }
+  }
+
+  var max_edges = (vis_nodes * (vis_nodes - 1)) / 2;
+
+  var vis_edges = 0;
+  for(var i = 0; i < linksArr.length; i++) {
+    var edge = linksArr[i];
+
+    if(edge.source.visible && edge.target.visible) {
+      vis_edges++;
+    }
+  }
+
+  return vis_edges / max_edges;
+
+};
+
+function initVEPlot() {
+    var density = getRealDensity(nodes, links);
+    vData.push([veStamp, density]);
+    veStamp++;
+    vePlot = initPlot('freqPlot', vData);
+    updateVEPlot();
+};
+
+function updateVEPlot() {
+  var veStamp = 300;
+  var density = getRealDensity(nodes, links);
+  vData.push([veStamp, density]);
+
+  var newVData = [];
+  for(var i = 1; i < vData.length; i++) {
+    newVData[i - 1] = vData[i]
+    newVData[i - 1][0]--;
+  }
+
+  vePlot.setData([newVData]);
+  vePlot.setupGrid();
+  vePlot.draw();
+
+ // setDOMCount(countArr[0], countArr[1]);
+
+  setTimeout(updateVEPlot, updateInterval);
+};
+
+function setDOMCount(numNodes, numEdges) {
+  $('#dynamicStats').html('Visible Nodes: ' + numNodes + ', Visible Edges: ' + numEdges);
+};
+
+function getVisibleCount(nodes, edges) {
+  var nCount = 0, eCount = 0;
+
+  for(i = 0; i < nodes.length; i++) {
+    var node = nodes[i];
+    if(node.visible) {
+      nCount++;
+    }
+  }
+
+  for(j = 0; j < edges.length; j++) {
+    var edge = edges[j];
+    if(edge.source.visible && edge.target.visible) {
+      eCount++;
+    }
+
+  }
+
+  return [nCount, eCount];
+};
+
+function getVisibleDensity(nodes, edges) {
+  var countArr = getVisibleCount(nodes, edges);
+  var nCount = countArr[0];
+  var eCount = countArr[1];
+
+  if(eCount == 0) {
+    return 0;
+  }
+
+  return nCount / eCount;
+}; 
+
+
+function readGraph(AJAXString) {
+  //NOTE this isnt always the behavior we want, make this an optional param for screenshot code TODO
+$.ajaxSetup({
+    async: false
+});
+
+  currentGraphName = AJAXString;
+  var nodes, edges;
+
+  $.getJSON('./' + AJAXString, function(data) {
+    
+    var n = data.nodes;
+    var e = data.links;
+
+    /* Current Python script for generating these files has the ID's 
+     * all the same, with the label and ID being switched. this code is not
+     * needed if the script is fixed.
+    */
+    for(var i = 0; i < n.length; i++) {
+      var node = n[i];
+
+      node.x = Math.random() * WIDTH;
+      node.y = Math.random() * HEIGHT;
+      node.label = node.id;
+      node.r = getNodeRadius(node);
+      node.id = i;
+      node.neighbors = [];
+      node.nlinks = [];
+    }
+
+    for(var i = 0; i < e.length; i++) {
+      var edge, tmp;
+      edge = e[i];
+
+      tmp = edge.source;
+      edge.source = n[tmp];
+
+      tmp = edge.target;
+      edge.target = n[tmp];
+    }
+
+    setHotMetalEdges(e);
+    setNeighbors(e);
+
+    setGraph(n, e);
+   
+
+  });
+
+};
+
+
+function renderVisible() {
+  var renderSet = [];
+
+
+  for(var i = 0; i < links.length; i++) {
+        var link = links[i];
+
+        if(link.source.visible && link.target.visible) {
+
+          if(graphPinned) {
+            if(link.source.pinned && link.target.pinned) {
+              renderSet.push(link.source);
+              renderSet.push(link.target);
+              renderSet.push(link);
+            }
+          } else {
+            renderSet.push(link.source);
+            renderSet.push(link.target);
+            renderSet.push(link);
+          }
+        }
+      }
+
+      render(renderSet);
+};
+
+function getNodeRadius(node) {
+
+  switch(node.label) {
+    case "minspd:1": return 10; 
+    case "hwysgnl:0": return 8;
+    case "channel:3": return 6;
+    case "minspd:5": return 4;
+    case "prvind:70": return 3;
+    case "VEHSPD:010": return 10;
+    case "PASSINJ:": return 8;
+    case "IYR:97": return 6;
+    case "TRNSPD:030": return 4;
+    case "MONTH:09": return 4;
+    case "MONTH:08": return 3;
+    default: return 2;
+  }
+
+
+}
+
+$("#graphSelect").change(function() {
+  var selectedName = $(this).find('option:selected').html();
+  readGraph(selectedName);
+});
+
+/*$("#graphSelect").on("click", function() {
+  var selectedName = $(this).find('option:selected').html();
+  readGraph(selectedName);
+});*/
+
+function populateGraphOptions(optionList) {
+
+  $("#graphSelect").html('');
+
+  $.getJSON(optionList, function(data) {
+    for(var i = 0; i < data.length; i++) {
+      var datum = data[i];
+      var currHTML = $("#graphSelect").html();
+      $("#graphSelect").html(currHTML + "<option value=\"" + datum + "\">" + datum + "</option>\n");
+    }
+
+   });
+};
+
+populateGraphOptions('./complete_list.json');
+ 
+
+
+var optionsData = null; 
+
+//Currently has asynch issues
+//problem, loop iterates before readgraph finishes and clobbers
+function iterateScreenShots(optionList) {
+
+   $.getJSON(optionList, function(data) {
+    optionsData = data;
+
+    for(var i = 0; i < optionsData.length; i++) {
+      var datum = optionsData[i];
+      var currentName = currentGraphName;
+      readGraph(datum);
+      conformRailWayView();
+      takeScreenShot();
+
+    }
+   });
+
+};
+
+
+function setHotMetalEdges(linksArr) {
+  var max = getMax(linksArr);
+  setColorRange(max);
+
+  for(var i = 0; i < linksArr.length; i++) {
+    var e = linksArr[i];
+    e.color = hotMetalColor(e.value);
+  }
+};
+
+function setColorRange(maxval) {
+  if(maxval === 1) {
+
+    hotMetalColor = function() {
+      return "grey";
+    }
+
+  } else {
+
+    var catagories = [];
+
+    for(i = maxval; i > 0; i--) {
+      catagories.push(i.toString());
+    }
+
+    hotMetalColor = d3.scale.ordinal()
+      .domain(catagories)
+      .range(d3.range(catagories.length).map(d3.scale.linear()
+        .domain([0, catagories.length - 1])
+        .range(["#ff0000", "grey"])
+        .interpolate(d3.interpolateHcl)));
+  }
+
+};
+
+
+/* Function used to visualize viewed data */
+/* Used for the visualization of railway data */
+function conformRailWayView() {
+  //Show MST
+  showMaxTree(nodes, links);
+
+  //Apply 8 rounds of FDL
+  for(var i = 0; i < 24; i++) {
+    applyForce();
+    //renderVisible();
+  }
+
+  //Center camera around the mid-point of the two highest
+  //degree nodes
+  var nodeMax = nodes[0], secondMax = nodes[0];
+
+  for(var j = 0; j < nodes.length; j++) {
+    var currNode = nodes[j];
+    if(getVisibleDegree(currNode) >= getVisibleDegree(nodeMax)) {
+      secondMax = nodeMax;
+      nodeMax = currNode;
+    } else 
+    if(getVisibleDegree(currNode) >= getVisibleDegree(secondMax)) {
+      secondMax = currNode;
+    }
+  }
+
+
+  nodeMax.color = "green";
+  nodeMax.r = 5;
+
+  secondMax.color = "green";
+  secondMax.r = 5;
+
+  var nx1, nx2, ny1, ny2;
+  nx1 = nodeMax.x;
+  ny1 = nodeMax.y;
+
+  nx2 = secondMax.x;
+  ny2 = secondMax.y;
+
+
+  var xAverage = (nx1 + nx2) / 2;
+  var yAverage = (ny1 + ny2) / 2;
+
+  var xDiff = 0, yDiff = 0;
+
+  xDiff = (WIDTH / 2) - xAverage;
+  yDiff = (HEIGHT / 2) - yAverage; 
+
+
+  for(var k = 0; k < nodes.length; k++) {
+    var node = nodes[k];
+    node.x += xDiff;
+    node.y += yDiff;
+  }
+
+  renderVisible();
+}
+
+
+function reduceMST() {
+  //Show MST
+  showMaxTree(nodes, links);
+
+  //Center camera around the mid-point of the two highest
+  //degree nodes
+  var nodeMax = null, secondMax = null;
+
+  for(var j = 0; j < nodes.length; j++) {
+    var currNode = nodes[j];
+    //Hide all non-outliers
+    currNode.visible = false;
+    currNode.visNeighbors = [];
+    if(getVisibleDegree(currNode) > getVisibleDegree(nodeMax)) {
+      secondMax = nodeMax;
+      nodeMax = currNode;
+    } else 
+    if(getVisibleDegree(currNode) > getVisibleDegree(secondMax)) {
+      secondMax = currNode;
+    }
+  }
+
+  nodeMax.visible = true;
+  secondMax.visible = true;
+
+  setVisNeighbors(links);
+
+  for(var i = 0; i < nodes.length; i++) {
+    var currNode = nodes[i];
+    if(!nodeInArr(nodeMax.visNeighbors, currNode)) {
+      if(currNode.isInci !== nodeMax.isInci) {
+        currNode.visNeighbors[0].visible = true;
+        currNode.visible = true;
+      }
+    }
+
+    if(!nodeInArr(secondMax.visNeighbors, currNode)) {
+      if(currNode.isInci !== secondMax.isInci) {
+        currNode.visNeighbors[0].visible = true;
+        currNode.visible = true;
+      }
+    }
+  }
+
+  nodeMax.color = "green";
+  nodeMax.r = 5;
+
+  secondMax.color = "green";
+  secondMax.r = 5;
+
+  var nx1, nx2, ny1, ny2;
+  nx1 = nodeMax.x;
+  ny1 = nodeMax.y;
+
+  nx2 = secondMax.x;
+  ny2 = secondMax.y;
+
+
+  var xAverage = (nx1 + nx2) / 2;
+  var yAverage = (ny1 + ny2) / 2;
+
+  var xDiff = 0, yDiff = 0;
+
+  xDiff = (WIDTH / 2) - xAverage;
+  yDiff = (HEIGHT / 2) - yAverage; 
+
+  /*for(var k = 0; k < nodes.length; k++) {
+    var node = nodes[k];
+    node.x += xDiff;
+    node.y += yDiff;
+  }*/
+  var scale = 10
+  var zoomWidth = WIDTH - scale * WIDTH / 2;
+  var zoomHeight = HEIGHT - scale * HEIGHT / 2;
+  d3.behavior.zoom().translate([zoomWidth, zoomHeight]).scale(scale);
+  renderVisible();
+};
+
+function setVisNeighbors(links) {
+  for(var i = 0; i < links.length; i++) {
+    var edge = links[i];
+    if(edge.visible) {
+      var n1 = edge.source;
+      var n2 = edge.target;
+
+      n1.visNeighbors.push(n2);
+      n2.visNeighbors.push(n1);
+    }
+  }
+};
+
+function isVisible(node) {
+  if(graphPinned) {
+    if(node.pinned) {
+      return node.visible;
+    } else {
+      return false;
+    }
+  } else {
+    return node.visible;
+  }
+};
+
+
+function getVisibleDegree(node) {
+  if(node == null) {
+    return 0;
+  }
+  var count = 0;
+  for(var i = 0; i < node.nlinks.length; i++) {
+    if(node.nlinks[i].visible) {
+      count++;
+    }
+  }
+
+  return count;
+};
+
+function onMapNodeClick() {
+  console.log(this.name);
+  //console.log($("#graphSelect").val());
+  $("#graphSelect").val(this.name + '.json');
+  gm.removeItemSelectMarker();
+  gm.putItemSelectMarker(this.getLatLng());
+  readGraph(this.name + '.json');
+  clear_canvas();
+  showMaxTree(nodes, links);
+  conformRailWayView();
+
+};
+
+var gm;
+
+function initMap(pointData) {
+  gm = new GlobalMap("map");
+  gm.setPoints(pointData);
+  gm.setOnClickListener(onMapNodeClick);
+  gm.display();
+};
+
+</script>
+
+
+</body>

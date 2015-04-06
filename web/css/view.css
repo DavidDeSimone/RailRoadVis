@@ -1,0 +1,138 @@
+
+#map {
+width: 980px;
+height: 250px;
+border: groove 6px;
+text-align: center;
+margin-right: auto;
+margin-left: auto;
+}
+
+/* Style for central block containers */
+.centralCont {
+
+width: 980px;
+height: 720px;
+text-align: center;
+margin-left: auto;
+margin-right: auto;
+
+}
+.buffer {
+
+width: 940px;
+height: 15px;
+text-align: center;
+margin-left: auto;
+margin-right: auto;
+
+}
+
+.midCont {
+
+width: 970px;
+height: 50px;
+text-align: center;
+margin-left: auto;
+margin-right: auto;
+
+}
+
+#midContainer {
+
+border: groove 6px;
+
+}
+
+/* Styles for the statistics Window */
+#stats {
+
+width: 150px;
+height: 100%;
+float: left;
+
+}
+
+/* Styles for the control panel window */
+#controls {
+
+width: 150px;
+height: 100%;
+float: left;
+
+}
+
+.sidePanel {
+
+border: groove 6px;
+
+}
+
+#mainGraph {
+
+width: 642px;
+height: 100%;
+float: left;
+border: groove 6px;
+
+}
+
+#filterView {
+
+width: 300px;
+height: 100%;
+border: groove 6px;
+float: left;
+
+}
+
+#cardView {
+
+width: 720px;
+height: 100%;
+border: groove 6px;
+float: right;
+
+}
+
+#sideView {
+	width: 235px;
+	height: 100%;
+	border: groove 6px;
+	float: left;
+}
+
+#relatedTitle {
+
+font-size: 32px;
+
+}
+
+#mainTitle {
+
+font-size: 48px;
+
+}
+
+#freqPlot {
+
+width: 100%;
+height: 250px;
+
+}
+
+#occPlot {
+
+width: 100%;
+height: 250px;
+
+}
+
+.inputBox {
+
+width: 40px;
+height: 40px;
+
+}
+
+

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+ 
+<title>Large Force D3 on canvas</title>
+
+<body>
+<button id="reset">Reset Nodes!</button>
+<div id="slider"></div>
+<script src="http://bl.ocks.org/syntagmatic/raw/3341641/render-queue.js"></script>
+<script src="http://d3js.org/d3.v2.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+ 
+<script>
+
+var WIDTH = 1200;
+var HEIGHT = 800;
+
+var NUM_NODES = 10000;
+var NUM_EDGES = 100000;
+
+var links = [];
+var nodes = [];
+
+var x = d3.scale.linear()
+        .domain([0, WIDTH])
+        .range([0, WIDTH]);
+
+var y = d3.scale.linear()
+          .domain([0, HEIGHT])
+          .range([HEIGHT, 0]);
+
+var cv = d3.select("body")
+             .append("canvas")
+             .attr("id", "canvas")
+             .attr("width", WIDTH)
+             .attr("height", HEIGHT);
+
+var canvas = cv
+            .call(d3.behavior.zoom().x(x).y(y).scaleExtent([1,8]).on("zoom", zoom))
+             .node()
+             .getContext("2d");
+
+var getColor = d3.scale.linear()
+               .domain([0, 0.5, 1])
+               .range(["#ef2212", "#e7c767", "#2799df"])
+               .interpolate(d3.interpolateHcl); 
+
+function generateNodes(num) {
+   var nodes = d3.range(num).map(function(d, i) {
+     return {
+       x: Math.random() * WIDTH,
+       y: Math.random() * HEIGHT,
+       r: Math.random() * 10 + 3,
+       value: Math.random() * 10, 
+       color: getColor(Math.random()),
+       neighbors: [],
+       visible: true,
+       type: "node"
+     };
+   });
+
+  return nodes;
+};
+
+function generateLinks(nodes, num) {
+   var links = d3.range(num).map(function(d) {
+       return {
+         source: nodes[Math.floor(Math.random() * nodes.length)],
+         target: nodes[Math.floor(Math.random() * nodes.length)],
+         color: getColor(Math.random()),
+         type: "link"
+       };
+   });
+   
+   setNeighbors(links);
+   return links;
+};
+
+function setNeighbors(links) {
+  for(i = 0; i < links.length; i++) {
+    l = links[i];
+    n1 = l.source;
+    n2 = l.target;
+
+    n1.neighbors.push(n2);
+    n2.neighbors.push(n1);
+  }
+};
+
+var clear_canvas = function() {
+        canvas.clearRect(0,0,WIDTH, HEIGHT);
+};
+
+function renderNode(d) {
+  if(!d.visible) {
+    return;
+  } 
+
+  var cx = x(d.x);
+  var cy = y(d.y);
+
+  canvas.fillStyle = d.color;
+  canvas.beginPath();
+  canvas.fillRect(cx, cy, d.r / 2, d.r / 2);
+  canvas.stroke();
+  canvas.fill();
+};
+
+function renderEdge(e) {
+  if(e.source.visible === false || e.target.visible === false) {
+    return;
+  }
+
+  var cx = x(e.source.x);
+  var cy = y(e.source.y);
+
+  var dx = x(e.target.x);
+  var dy = y(e.target.y);
+
+   canvas.strokeStyle = e.color;
+   canvas.beginPath();
+   canvas.moveTo(cx, cy);
+   canvas.lineTo(dx, dy);
+   canvas.stroke();
+   canvas.fill();
+   
+};
+
+function renderData(o) {
+   if(o.type === "node") {
+     renderNode(o);
+   } else
+   if(o.type === "link") {
+      renderEdge(o);
+   } else {
+    console.log("Error!");
+   }
+
+
+}
+
+function FDL(nodesArr, linksArr) {
+  var force = d3.layout.force()
+              .charge(-40)
+              .linkDistance(5)
+              .gravity(0.06)
+              .size([WIDTH, HEIGHT]);
+
+       force.nodes(nodesArr)
+            .links(linksArr);
+      
+       force.start();
+       for(i = 0; i < 10; i++) force.tick();
+       force.stop();
+        
+       return nodesArr.concat(linksArr);
+};
+
+
+var render = renderQueue(renderData).clear(clear_canvas);
+
+var nodes = generateNodes(NUM_NODES);
+var links = generateLinks(nodes, NUM_EDGES);
+
+var data = FDL(nodes, links);
+
+render(data);
+setSlider(nodes);
+
+var onNode = false;
+cv.on("mousemove", function() {
+  var evt = d3.mouse(this);
+  
+  console.log(evt[0] + " " + evt[1]);
+  localOnNode = false;
+  currentOnNode = onNode;
+
+  var thresHold = 2;
+  
+  for(i = 0; i < nodes.length; i++) {
+    d = nodes[i];
+    
+    if(Math.abs(x(d.x) - evt[0]) < thresHold && Math.abs(y(d.y) - evt[1]) < thresHold) {
+      localOnNode = true;
+      d.visible = true;
+      console.log(d);
+      nodeCallBack(d);
+    
+      for(j = 0; j < d.neighbors.length; j++) {
+        k = d.neighbors[j];
+        k.visible = true;
+        console.log(k);
+        }
+      } else { 
+        d.visible = false;
+      }
+    }
+
+    onNode = localOnNode;
+    if(!onNode) {
+      for(i = 0; i < nodes.length; i++) {
+        n = nodes[i];
+        n.visible = true;
+      }
+    }
+
+    if(currentOnNode !== onNode) {
+      render(data);
+    }
+
+});
+
+function nodeCallBack(node) {
+  //Do Node callback stuffs here
+};
+
+function zoom() {
+  render(data);
+};
+
+function getMax(nodesArr) {
+  var max = 0;
+
+  for(i = 0; i < nodesArr.length; i++) {
+    if(nodesArr[i].value > max) {
+      max = nodesArr[i].value;
+    }
+  }
+
+  return max;
+};
+
+function setSlider(nodesArr) {
+  var maxVal = getMax(nodesArr);
+
+  $("#slider").slider({
+    range: true,
+    min: 0, 
+    max: maxVal,
+    values: [0, maxVal],
+    slide: function(event, ui) {
+      var low, high;
+      low = ui.values[0];
+      high = ui.values[1];
+
+      for(i = 0; i < nodes.length; i++) {
+        var node = nodesArr[i];
+        if(node.value >= low && node.value <= high) {
+          node.visible = true;
+        } else {
+          node.visible = false;
+        }
+      }
+      render(data);
+    }
+  });
+};
+
+function resetVisibility(nodesArr) {
+  for(i = 0; i < nodesArr.length; i++) {
+    nodesArr[i].visible = true;
+  }
+  redner(data);
+};
+
+$("#reset").on("click", function() {
+  resetVisibility(nodes);
+});
+
+
+
+
+</script>
+</body>
